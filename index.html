@@ -105,6 +105,14 @@
     #tab-answers.ans-hidden .ans-body { filter: blur(7px); transition: filter .2s; user-select: none; }
     #tab-answers.ans-hidden .ans-card { cursor: pointer; }
     #tab-answers.ans-hidden .ans-card.revealed .ans-body { filter: none; user-select: auto; }
+
+    /* 中文翻譯 */
+    .zh-trans { font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif; font-size: 0.9rem; line-height: 1.85; color: #475569; border-left: 3px solid #bfdbfe; padding-left: .75rem; margin-top: .35rem; }
+    .dark .zh-trans { color: #94a3b8; border-left-color: #1e3a8a; }
+    .zh-fill { text-decoration-color: #3b82f6; text-underline-offset: 3px; color: #1d4ed8; font-weight: 600; }
+    .dark .zh-fill { color: #93c5fd; }
+    .zh-n { font-size: .65rem; color: #94a3b8; margin-left: 1px; }
+    body.hide-zh .zh-trans { display: none; }
     ::-webkit-scrollbar-thumb {
       background: #cbd5e1;
       border-radius: 3px;
@@ -206,8 +214,11 @@
       <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/40 rounded-xl p-4 text-xs md:text-sm text-blue-800 dark:text-blue-300 flex items-start space-x-3">
         <i class="fa-solid fa-circle-info text-blue-500 text-base mt-0.5"></i>
         <div>
-          <strong>學習提示：</strong> 點擊文章中的任何英文單字，即可彈出<b>繁體中文翻譯</b>、<b>詞性</b>、<b>音標</b>與<b>發音功能</b>！
+          <strong>學習提示：</strong> 點擊文章中的任何英文單字，即可彈出<b>繁體中文翻譯</b>、<b>詞性</b>、<b>音標</b>與<b>發音功能</b>！每段下方附有<b>中文翻譯</b>（選填題的空格已填入答案並標示底線）。
         </div>
+        <button id="zh-toggle-btn" onclick="toggleTranslations()" class="shrink-0 text-xs font-semibold bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 px-3 py-1.5 rounded-lg flex items-center gap-1.5 whitespace-nowrap">
+          <i class="fa-solid fa-language"></i><span>隱藏翻譯</span>
+        </button>
       </div>
 
       <!-- Section I: 綜合測驗 -->
@@ -230,12 +241,15 @@
           <p class="passage-para">
             Many businesses in Taiwan wish to increase the number of repeat customers they get. In order to achieve this, stores have set up special programs that <span class="passage-blank">(1)</span> customer loyalty. Shoppers at these places earn points or stickers every time they visit. They can then <span class="passage-blank">(2)</span> these rewards for free items or discounts.
           </p>
+<p class="zh-trans">台灣許多商家都希望增加回頭客的數量。為了達成這個目標，商店設立了特別方案來<u class="zh-fill">獎勵</u><sup class="zh-n">(1)</sup>顧客的忠誠度。在這些地方購物的人，每次光顧都能賺取點數或貼紙。接著，他們可以<u class="zh-fill">兌換</u><sup class="zh-n">(2)</sup>這些獎勵，換取免費商品或折扣。</p>
           <p class="passage-para">
             These reward programs have had so much success that other types of organizations are incorporating similar ideas in their new projects. In Taipei, the city's health department has distributed Wellness Cards to people who get vaccines or participate in health activities. Each time these people join health-related events, they earn more points. Points received can <span class="passage-blank">(3)</span> for health checkups or converted into discounts at Taipei Zoo. In Nantou, the public library system gives points to kids who check out books and write essays or draw pictures about what they read. The program aims to encourage children to read more.
           </p>
+<p class="zh-trans">這些獎勵方案非常成功，以致於其他類型的機構也在新專案中採用類似的點子。在台北，市政府衛生局向接種疫苗或參加健康活動的民眾發放了「健康卡」。每次這些民眾參加與健康相關的活動，就能賺取更多點數。獲得的點數可以<u class="zh-fill">被兌換</u><sup class="zh-n">(3)</sup>成健康檢查，或轉換成台北市立動物園的折扣。在南投，公共圖書館系統會給借書、並針對所讀內容寫文章或畫圖的孩子點數。這個方案的目的是鼓勵孩子多閱讀。</p>
           <p class="passage-para">
             <span class="passage-blank">(4)</span> people's desire to earn free things, reward programs can do more than bring shoppers back to a store. They can be used to <span class="passage-blank">(5)</span> healthy habits and motivate people. If you're looking for new ways to save money, keep an eye out for these programs.
           </p>
+<p class="zh-trans"><u class="zh-fill">多虧</u><sup class="zh-n">(4)</sup>人們想賺取免費東西的慾望，獎勵方案能做的不只是讓顧客回到店裡。它們還可以用來<u class="zh-fill">促進</u><sup class="zh-n">(5)</sup>健康的習慣並激勵人們。如果你正在尋找省錢的新方法，不妨留意這些方案。</p>
         </div>
         <!-- Options for Q1-5 -->
         <div class="bg-blue-50/70 dark:bg-slate-700/40 p-3.5 rounded-xl border border-blue-100 dark:border-slate-600 space-y-2.5 text-sm text-slate-700 dark:text-slate-200">
@@ -280,15 +294,19 @@
           <p class="passage-para">
             Algae, plant-like organisms like kelp and seaweed, may seem like pretty simple stuff. Yet algae have many startling uses and could even save the world.
           </p>
+<p class="zh-trans">藻類（algae）是像海帶和海藻這類類似植物的生物，看起來或許只是很簡單的東西。然而，藻類有許多令人驚訝的用途，甚至有可能拯救世界。</p>
           <p class="passage-para">
             Algae can be turned into shoe padding that is lightweight, <span class="passage-blank">(6)</span>, and more comfortable than customary padding. One shoe company has even started making entire shoes out of algae that can be worn in water as well as on land. Next time you're thirsty, consider drinking from a water bottle made from algae powder. As the bottle is a biological product, it is fully biodegradable and won't <span class="passage-blank">(7)</span> the environment. Algae-based wrapping has been <span class="passage-blank">(8)</span> by the company "Evoware." Making wrapping from algae has the dual <span class="passage-blank">(9)</span> of reducing plastic waste and providing something edible, just in case you're extra hungry. Algae are actually full of nutrients and one type, Spirulina, is especially healthy. Each gram of Spirulina contains more vitamins and minerals than carrots or spinach and provides more protein than a gram of red meat. Best of all, it's cheap and easy to cultivate!
           </p>
+<p class="zh-trans">藻類可以做成輕巧、<u class="zh-fill">堅固</u><sup class="zh-n">(6)</sup>，而且比傳統鞋墊更舒適的鞋墊。有一家鞋廠甚至已經開始用藻類製作整雙鞋，既能在陸地上穿，也能穿著下水。下次口渴時，可以考慮用藻類粉末製成的水瓶來喝水。由於這種水瓶是生物製品，完全可生物分解，不會<u class="zh-fill">污染</u><sup class="zh-n">(7)</sup>環境。以藻類為基礎的包裝材料是由「Evoware」公司<u class="zh-fill">率先開發</u><sup class="zh-n">(8)</sup>的。用藻類製作包裝有雙重<u class="zh-fill">好處</u><sup class="zh-n">(9)</sup>：既減少塑膠垃圾，又提供可食用的東西，萬一你特別餓的話正好派上用場。藻類其實富含營養，其中一種叫螺旋藻（Spirulina），特別健康。每公克螺旋藻所含的維生素和礦物質比紅蘿蔔或菠菜還多，提供的蛋白質也比一公克紅肉多。最棒的是，它既便宜又容易栽培！</p>
           <p class="passage-para">
             Although algae can be used for many things, a(n) <span class="passage-blank">(10)</span> benefit is its capability to purify the environment. Algae get rid of <span class="passage-blank">(11)</span> chemicals from polluted water, as well as carbon dioxide from the atmosphere. In addition, farmers have discovered that feeding algae to cows radically <span class="passage-blank">(12)</span> their methane gas output. This is a significant environmental breakthrough, as methane does more damage to our environment than all the world's cars, trucks, and airplanes <span class="passage-blank">(13)</span>.
           </p>
+<p class="zh-trans">雖然藻類有很多用途，但一項<u class="zh-fill">根本的</u><sup class="zh-n">(10)</sup>好處是它淨化環境的能力。藻類能清除受污染水中的<u class="zh-fill">有毒</u><sup class="zh-n">(11)</sup>化學物質，以及大氣中的二氧化碳。此外，農夫發現餵牛吃藻類能大幅<u class="zh-fill">減少</u><sup class="zh-n">(12)</sup>牠們的甲烷排放量。這是重大的環境突破，因為甲烷對環境造成的傷害，比全世界所有汽車、卡車和飛機<u class="zh-fill">加起來</u><sup class="zh-n">(13)</sup>還要大。</p>
           <p class="passage-para">
             Collectively, algae's many <span class="passage-blank">(14)</span> make them far more important than most people realize. These organisms may be humble in appearance, but in <span class="passage-blank">(15)</span> they are splendidly useful.
           </p>
+<p class="zh-trans">整體來看，藻類的許多<u class="zh-fill">應用</u><sup class="zh-n">(14)</sup>使它們遠比大多數人所意識到的更重要。這些生物外表也許不起眼，但<u class="zh-fill">本質上</u><sup class="zh-n">(15)</sup>它們極其有用。</p>
         </div>
       </section>
 
@@ -320,18 +338,23 @@
           <p class="passage-para">
             The need for solutions to problems in our daily lives often leads to new and notable inventions. Here are some examples of inventions designed to resolve universal problems.
           </p>
+<p class="zh-trans">生活中對解決問題的需求，常會催生新的、值得注意的發明。以下是一些為了解決普遍問題而設計的發明例子。</p>
           <p class="passage-para">
             If you accidentally cut yourself, the idea of using a Band-Aid may logically spring to mind. <span class="passage-blank">(16)</span> Earle Dickson noticed that his wife often burned or cut herself while cooking. She would then require his help to bandage the wound. Dickson couldn't always be there to lend a hand. Therefore, he invented a bandage that she could easily apply herself. These adhesive bandages—Band-Aids—are now commonplace in every household.
           </p>
+<p class="zh-trans">如果你不小心割傷自己，使用 Band-Aid（OK 繃）的想法很可能自然浮現在腦海。<u class="zh-fill">但你知道這項發明是怎麼來的嗎？</u><sup class="zh-n">(16)</sup>Earle Dickson 注意到他太太做菜時常被燙傷或割傷，之後她總需要他幫忙包紮傷口。Dickson 不可能隨時都在身邊幫忙，因此他發明了一種她可以自己輕鬆貼上的繃帶。這種黏性繃帶，也就是 Band-Aid，如今已是每個家庭的常備用品。</p>
           <p class="passage-para">
             Then there was Bette Nesmith Graham, a secretary who wanted a straightforward way to correct her typing mistakes. One day, as she watched painters touch up a wall with paint, it struck her that the same procedure could be used on paper. <span class="passage-blank">(17)</span> This handy invention eventually came to be known as Liquid Paper.
           </p>
+<p class="zh-trans">接著是 Bette Nesmith Graham，她是一名秘書，想要一個簡單直接的方法來修正打字錯誤。有一天，她看著油漆工修補牆面，突然想到同樣的做法也可以用在紙上。<u class="zh-fill">如果她用小刷子把薄薄的白漆塗在作品上，就能遮蓋錯誤。</u><sup class="zh-n">(17)</sup>這項方便的發明後來被稱為 Liquid Paper（修正液）。</p>
           <p class="passage-para">
             <span class="passage-blank">(18)</span> In 1908, the New York tea seller, Thomas Sullivan, decided to put tea leaves in small silk bags as samples for customers. He intended for customers to remove the loose leaves from each bag before brewing a pot of tea. However, some people got the wrong idea and began putting the unopened bags directly into hot water, and so the convention of using tea bags was born.
           </p>
+<p class="zh-trans"><u class="zh-fill">不過，有些時候，發明是意外產生的。</u><sup class="zh-n">(18)</sup>1908 年，紐約的茶商 Thomas Sullivan 決定把茶葉裝進小小的絲袋，當作給顧客的樣品。他原本是希望顧客在泡茶前，先把每個袋子裡的散茶葉倒出來。然而，有些人誤會了他的意思，開始把沒打開的袋子直接放進熱水裡，於是使用茶包的習慣就此誕生。</p>
           <p class="passage-para">
             If the simple need to solve a problem can motivate people to find creative solutions, undoubtedly inventors of the future will continue to conceive of fresh ideas. <span class="passage-blank">(19)</span> If it weren't for great inventions, our lives would be a lot more troublesome.
           </p>
+<p class="zh-trans">如果單純想解決問題的需求就能激勵人們想出有創意的辦法，那麼未來的發明家無疑會繼續構思出新點子。<u class="zh-fill">我們可以期待未來出現更多有創意的解決辦法。</u><sup class="zh-n">(19)</sup>要不是有這些偉大的發明，我們的生活會麻煩得多。</p>
         </div>
       </section>
 
@@ -352,15 +375,19 @@
           <p class="passage-para">
             When you think of museums, what comes to mind? You might think of paintings, sculptures, and antique artifacts. You probably won't immediately think of alien spacecraft, socks, and carrots. Yet there are museums for all of those things. In fact, mention any object, and it probably has its own museum.
           </p>
+<p class="zh-trans">當你想到博物館時，腦中會浮現什麼？你可能會想到畫作、雕塑和古董文物。你大概不會馬上想到外星太空船、襪子和紅蘿蔔。然而，這些東西全都有博物館。事實上，隨便說出一樣物品，大概都有它自己的博物館。</p>
           <p class="passage-para">
             Take ramen noodles, for example. A museum in Yokohama, Japan, tells the story of this popular food. You can see bowls, chopsticks, and some of the machinery that the Japanese used to make ramen. There is even a floor in the museum that looks like Tokyo in 1958. If all of this whets your appetite, you'll most likely want to buy a bowl of ramen noodles before you leave.
           </p>
+<p class="zh-trans">以拉麵為例。日本橫濱有一間博物館，講述這種受歡迎食物的故事。你可以看到碗、筷子，以及日本人過去用來製作拉麵的一些機器。博物館裡甚至有一層樓看起來就像 1958 年的東京。如果這一切勾起了你的食慾，你離開前很可能會想買一碗拉麵來吃。</p>
           <p class="passage-para">
             Meanwhile, in other parts of the world, you can find many more peculiar museums. In the United States, for example, you can visit the Museum of Bad Art. This museum assembles, preserves, and displays the worst art imaginable. It has paintings in which people look like monsters and mountains look like ice cream cones. Another American town is home to the Salt and Pepper Shaker Museum. This museum is the result of one woman's obsession with the small tabletop items. The museum currently exhibits 22,000 sets in shapes as varied as McDonald's menu items, skeletons, and every conceivable vegetable. Visitors are welcome in the gift shop if they are keen to start their own collections! Over in Europe, the Museum of Torture is popular with tourists. It has more than 60 torture instruments inside. They were all intended to hurt people in very dreadful ways.
           </p>
+<p class="zh-trans">同時，在世界其他地方，你還能找到更多奇特的博物館。例如在美國，你可以參觀「爛藝術博物館」（Museum of Bad Art）。這間博物館收集、保存並展示你所能想像最糟糕的藝術品。館內的畫作裡，人看起來像怪物，山看起來像冰淇淋甜筒。美國另一個小鎮則有「鹽罐與胡椒罐博物館」。這間博物館源自一位女士對這些小巧桌上用品的癡迷。館內目前展出 22,000 組鹽罐胡椒罐，形狀五花八門，有麥當勞菜單上的品項、骷髏，以及各種你想得到的蔬菜。如果你熱衷於開始自己的收藏，歡迎到禮品店逛逛！在歐洲，「酷刑博物館」很受觀光客歡迎。館內有超過 60 件刑具，全都是為了以非常可怕的方式傷害人而製作的。</p>
           <p class="passage-para">
             So the next time you want some exposure to culture, forget about New York's Museum of Modern Art and Michelangelo's David. Instead, check out the Lawnmower Museum, the Dog Collar Museum, or the International Museum of Toilets. You're sure to have a lot of fun!
           </p>
+<p class="zh-trans">所以下次你想接觸文化時，就別去紐約現代藝術博物館或米開朗基羅的《大衛》了。相反地，去看看割草機博物館、狗項圈博物館，或國際馬桶博物館吧。你一定會玩得很開心！</p>
         </div>
       </section>
 
@@ -381,6 +408,7 @@
           <p class="passage-para text-base md:text-lg leading-relaxed text-slate-800 dark:text-slate-200 font-serif">
             Vacations can be very expensive. You have to pay for plane tickets, hotels, and food. But never fear, there is an answer: a working holiday. On a working holiday, you can travel and work at the same time, therefore solving the problem of cost. Take a look at the following four people sharing their working holiday experiences.
           </p>
+<p class="zh-trans">度假可能非常昂貴。你得支付機票、旅館和餐飲費用。但別擔心，有一個解決辦法：打工度假。打工度假時，你可以邊旅行邊工作，因此解決了費用的問題。來看看以下四個人分享他們的打工度假經驗。</p>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="bg-slate-50 dark:bg-slate-700/40 p-4 rounded-xl border border-slate-200 dark:border-slate-600 space-y-1.5 text-sm">
@@ -388,24 +416,28 @@
               <p class="passage-para font-serif leading-relaxed text-slate-700 dark:text-slate-300">
                 I spent the last summer working as a balloon chaser on my working holiday in Europe. Assisting the hot-air balloon crew, I used maps and information from the pilot to figure out the perfect landing spot. They were very patient and friendly. Some of the people I worked with during that time even became my very close friends.
               </p>
+<p class="zh-trans">去年夏天，我在歐洲打工度假，擔任熱氣球追逐員。我協助熱氣球的工作團隊，利用地圖和駕駛員提供的資訊，找出完美的降落地點。他們非常有耐心又友善。我在那段期間共事的一些人，甚至成為我非常親近的朋友。</p>
             </div>
             <div class="bg-slate-50 dark:bg-slate-700/40 p-4 rounded-xl border border-slate-200 dark:border-slate-600 space-y-1.5 text-sm">
               <h3 class="font-bold text-blue-600 dark:text-blue-400 text-base">(B) Andrea</h3>
               <p class="passage-para font-serif leading-relaxed text-slate-700 dark:text-slate-300">
                 My deep passion for coffee led me to choose to work in a café on my working holiday. At first, I had a hard time remembering all the terms and recipes for different coffee creations in a foreign language. However, with practice, I overcame the difficulty and gained confidence in my barista skills.
               </p>
+<p class="zh-trans">我對咖啡的深厚熱情，讓我選擇在打工度假時到咖啡廳工作。一開始，我很難用外語記住各種咖啡特調的專有名詞和配方。不過，經過練習，我克服了困難，也對自己的咖啡師技能有了信心。</p>
             </div>
             <div class="bg-slate-50 dark:bg-slate-700/40 p-4 rounded-xl border border-slate-200 dark:border-slate-600 space-y-1.5 text-sm">
               <h3 class="font-bold text-blue-600 dark:text-blue-400 text-base">(C) Pamela</h3>
               <p class="passage-para font-serif leading-relaxed text-slate-700 dark:text-slate-300">
                 Spending my working holiday in the French Alps as a hotel staff member was a dream come true. I got to embrace the beauty of the mountains while working in the hotel industry. When I wasn't assisting guests, I went skiing or just chilled out and enjoyed the landscape. It was a truly unforgettable experience.
               </p>
+<p class="zh-trans">在法國阿爾卑斯山擔任飯店員工度過我的打工度假，簡直是美夢成真。我得以在飯店業工作的同時，擁抱群山之美。不需要協助客人的時候，我就去滑雪，或只是放鬆欣賞風景。那是一段真正難忘的經歷。</p>
             </div>
             <div class="bg-slate-50 dark:bg-slate-700/40 p-4 rounded-xl border border-slate-200 dark:border-slate-600 space-y-1.5 text-sm">
               <h3 class="font-bold text-blue-600 dark:text-blue-400 text-base">(D) Leonard</h3>
               <p class="passage-para font-serif leading-relaxed text-slate-700 dark:text-slate-300">
                 I worked as a koala catcher during my working holiday in Australia. We needed to protect the wild koalas by capturing them so that the government could release them into safer areas. This might look fun, but it's also an important job—if the koalas are not caught, they most likely die.
               </p>
+<p class="zh-trans">我在澳洲打工度假期間擔任無尾熊捕捉員。我們需要捕捉野生無尾熊來保護牠們，好讓政府能把牠們野放到更安全的地區。這看起來也許很好玩，但這也是一份重要的工作：如果沒有捕捉到無尾熊，牠們很可能會死亡。</p>
             </div>
           </div>
         </div>
@@ -1451,7 +1483,10 @@ zoo|n.|動物園`;
       const container = document.getElementById(containerId);
       if (!container) return;
 
-      const text = container.innerText;
+      // 朗讀時略過中文翻譯
+      const clone = container.cloneNode(true);
+      clone.querySelectorAll('.zh-trans').forEach(el => el.remove());
+      const text = clone.textContent.replace(/\s+/g, ' ').trim();
       currentSpeechUtterance = new SpeechSynthesisUtterance(text);
       currentSpeechUtterance.lang = 'en-US';
       currentSpeechUtterance.rate = speechRate;
@@ -1763,6 +1798,21 @@ zoo|n.|動物園`;
       setTimeout(() => card.classList.remove('ring-2', 'ring-blue-400'), 1600);
     }
 
+
+    function setTranslationsVisible(show) {
+      document.body.classList.toggle('hide-zh', !show);
+      const btn = document.getElementById('zh-toggle-btn');
+      if (btn) btn.innerHTML = show
+        ? '<i class="fa-solid fa-language"></i><span>隱藏翻譯</span>'
+        : '<i class="fa-solid fa-language"></i><span>顯示翻譯</span>';
+    }
+
+    function toggleTranslations() {
+      const show = document.body.classList.contains('hide-zh');
+      setTranslationsVisible(show);
+      try { localStorage.setItem('u5-show-zh', show ? '1' : '0'); } catch (_) {}
+    }
+
     function submitQuiz() {
       let correctCount = 0;
       let unanswered = 0;
@@ -1968,6 +2018,7 @@ zoo|n.|動物園`;
       renderWordBank();
       renderQuizQuestions();
       renderAnswerKey();
+      try { if (localStorage.getItem('u5-show-zh') === '0') setTranslationsVisible(false); } catch (_) {}
       initPWA();
 
       // Detect available TTS Voices
