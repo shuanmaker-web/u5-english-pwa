@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unit 5 英文閱讀與單字學習 PWA</title>
+  <meta name="description" content="Unit 5 英文閱讀、文意選填、閱讀測驗與 20-25 單字庫互動學習 PWA">
+  <meta name="theme-color" content="#2563eb">
+
+  <!-- PWA: manifest + icons -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="U5 English">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    /* Interactive word styling */
+    .word-tap {
+      display: inline-block;
+      cursor: pointer;
+      border-bottom: 1px dashed rgba(59, 130, 246, 0.4);
+      padding: 0 1px;
+      border-radius: 2px;
+      transition: all 0.15s ease;
+    }
+    .word-tap:hover {
+      background-color: rgba(59, 130, 246, 0.15);
+      color: #1d4ed8;
+      border-bottom: 1px solid #2563eb;
+    }
+    .dark .word-tap:hover {
+      background-color: rgba(96, 165, 250, 0.2);
+      color: #93c5fd;
+    }
+    .word-tap.active-word {
+      background-color: #fde047 !important;
+      color: #000000 !important;
+      border-radius: 3px;
+      padding: 0 3px;
+      font-weight: 600;
+    }
+    /* Blank styling for reading passages */
+    .passage-blank {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 2.5rem;
+      height: 1.6rem;
+      padding: 0 6px;
+      margin: 0 2px;
+      border-bottom: 2px solid #2563eb;
+      font-weight: bold;
+      color: #1d4ed8;
+      background-color: rgba(219, 234, 254, 0.5);
+      border-radius: 4px 4px 0 0;
+    }
+    .dark .passage-blank {
+      background-color: rgba(30, 58, 138, 0.5);
+      color: #93c5fd;
+      border-color: #60a5fa;
+    }
+    /* Smooth transition for dark mode */
+    body {
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+    .dark ::-webkit-scrollbar-thumb {
+      background: #475569;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 min-h-full flex flex-col font-sans antialiased pb-20 md:pb-0">
+
+  <!-- TOP APP BAR -->
+  <header class="sticky top-0 z-30 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black text-xl shadow-md shadow-blue-500/20">
+          U5
+        </div>
+        <div>
+          <h1 class="font-bold text-lg leading-tight text-slate-900 dark:text-white">Unit 5 英文互動閱讀 PWA</h1>
+          <p class="text-xs text-slate-500 dark:text-slate-400">點擊單字發音與翻譯 • 全文朗讀 • 20-25單字庫</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <!-- Offline badge -->
+        <span id="offline-badge" class="hidden text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 flex items-center gap-1.5">
+          <i class="fa-solid fa-plane-slash"></i><span>離線中</span>
+        </span>
+        <!-- Install PWA Button -->
+        <button id="pwa-install-btn" class="hidden text-xs bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold px-3 py-1.5 rounded-lg shadow hover:opacity-90 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-download"></i>
+          <span>安裝 App</span>
+        </button>
+
+        <!-- Dark Mode Toggle -->
+        <button id="theme-toggle" class="p-2.5 rounded-lg text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition" title="切換深色模式">
+          <i class="fa-solid fa-moon text-lg dark:hidden"></i>
+          <i class="fa-solid fa-sun text-lg hidden dark:block"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- MAIN NAVIGATION TABS -->
+    <nav class="max-w-6xl mx-auto px-4 flex space-x-1 overflow-x-auto no-scrollbar border-t border-slate-100 dark:border-slate-700/50">
+      <button onclick="switchTab('passages')" id="tab-btn-passages" class="nav-tab py-2.5 px-4 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 flex items-center space-x-2 whitespace-nowrap">
+        <i class="fa-solid fa-book-open"></i>
+        <span>Unit 5 文章與題目</span>
+      </button>
+      <button onclick="switchTab('wordbank')" id="tab-btn-wordbank" class="nav-tab py-2.5 px-4 text-sm font-semibold border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 flex items-center space-x-2 whitespace-nowrap">
+        <i class="fa-solid fa-layer-group"></i>
+        <span>20-25 單字庫 & Flashcards</span>
+      </button>
+      <button onclick="switchTab('quiz')" id="tab-btn-quiz" class="nav-tab py-2.5 px-4 text-sm font-semibold border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 flex items-center space-x-2 whitespace-nowrap">
+        <i class="fa-solid fa-pen-to-square"></i>
+        <span>互動測驗 & 詳解</span>
+      </button>
+      <button onclick="switchTab('settings')" id="tab-btn-settings" class="nav-tab py-2.5 px-4 text-sm font-semibold border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 flex items-center space-x-2 whitespace-nowrap">
+        <i class="fa-solid fa-sliders"></i>
+        <span>設定 & PWA 說明</span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-grow max-w-6xl w-full mx-auto p-4 md:p-6">
+
+    <!-- GLOBAL AUDIO CONTROLLER BAR FOR READ ALOUD -->
+    <div class="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-800/80 p-3.5 rounded-2xl border border-blue-100 dark:border-slate-700 shadow-sm flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center space-x-3">
+        <button id="global-tts-btn" onclick="toggleGlobalSpeech()" class="w-10 h-10 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition flex items-center justify-center shadow-md">
+          <i id="global-tts-icon" class="fa-solid fa-play"></i>
+        </button>
+        <div>
+          <div class="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Audio Reader 全文朗讀</div>
+          <div id="tts-status-text" class="text-sm font-medium text-slate-700 dark:text-slate-200">點擊播放文章語音或選擇語速</div>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3 text-sm">
+        <label for="speed-select" class="text-xs font-semibold text-slate-500 dark:text-slate-400">語速:</label>
+        <select id="speed-select" onchange="changeSpeechRate()" class="bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs rounded-lg px-2.5 py-1.5 border border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="0.8">0.8x 慢速</option>
+          <option value="1.0" selected>1.0x 正常</option>
+          <option value="1.2">1.2x 快速</option>
+        </select>
+        <button onclick="stopSpeech()" class="text-xs px-2.5 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 transition text-slate-700 dark:text-slate-300">
+          <i class="fa-solid fa-stop mr-1"></i>停止
+        </button>
+      </div>
+    </div>
+
+    <!-- TAB 1: PASSAGES & EXERCISES (UNIT 5) -->
+    <div id="tab-passages" class="space-y-8">
+      <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/40 rounded-xl p-4 text-xs md:text-sm text-blue-800 dark:text-blue-300 flex items-start space-x-3">
+        <i class="fa-solid fa-circle-info text-blue-500 text-base mt-0.5"></i>
+        <div>
+          <strong>學習提示：</strong> 點擊文章中的任何英文單字，即可彈出<b>繁體中文翻譯</b>、<b>詞性</b>、<b>音標</b>與<b>發音功能</b>！
+        </div>
+      </div>
+
+      <!-- Section I: 綜合測驗 -->
+      <section class="bg-white dark:bg-slate-800 rounded-2xl p-5 md:p-7 shadow-sm border border-slate-200 dark:border-slate-700 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+          <div class="flex items-center space-x-3">
+            <span class="bg-blue-600 text-white font-bold text-xs px-2.5 py-1 rounded-md">I</span>
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white">綜合測驗 (Cloze Test)</h2>
+          </div>
+          <button onclick="readSectionText('section-1-text')" class="text-xs bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 px-3 py-1.5 rounded-lg text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+            <i class="fa-solid fa-volume-high text-blue-500"></i>
+            <span>朗讀此區</span>
+          </button>
+        </div>
+
+        <p class="text-xs text-slate-500 dark:text-slate-400">說明：第 1 題至第 5 題，請依文意選出最適當的一個選項。</p>
+
+        <!-- Passage 1 -->
+        <div id="section-1-text" class="text-base md:text-lg leading-relaxed text-slate-800 dark:text-slate-200 space-y-3 font-serif">
+          <p class="passage-para">
+            Many businesses in Taiwan wish to increase the number of repeat customers they get. In order to achieve this, stores have set up special programs that <span class="passage-blank">(1)</span> customer loyalty. Shoppers at these places earn points or stickers every time they visit. They can then <span class="passage-blank">(2)</span> these rewards for free items or discounts.
+          </p>
+          <p class="passage-para">
+            These reward programs have had so much success that other types of organizations are incorporating similar ideas in their new projects. In Taipei, the city's health department has distributed Wellness Cards to people who get vaccines or participate in health activities. Each time these people join health-related events, they earn more points. Points received can <span class="passage-blank">(3)</span> for health checkups or converted into discounts at Taipei Zoo. In Nantou, the public library system gives points to kids who check out books and write essays or draw pictures about what they read. The program aims to encourage children to read more.
+          </p>
+          <p class="passage-para">
+            <span class="passage-blank">(4)</span> people's desire to earn free things, reward programs can do more than bring shoppers back to a store. They can be used to <span class="passage-blank">(5)</span> healthy habits and motivate people. If you're looking for new ways to save money, keep an eye out for these programs.
+          </p>
+        </div>
+      </section>
+
+      <!-- Section II: 文意選填 -->
+      <section class="bg-white dark:bg-slate-800 rounded-2xl p-5 md:p-7 shadow-sm border border-slate-200 dark:border-slate-700 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+          <div class="flex items-center space-x-3">
+            <span class="bg-blue-600 text-white font-bold text-xs px-2.5 py-1 rounded-md">II</span>
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white">文意選填 (Algae & Environmental Breakthroughs)</h2>
+          </div>
+          <button onclick="readSectionText('section-2-text')" class="text-xs bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 px-3 py-1.5 rounded-lg text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+            <i class="fa-solid fa-volume-high text-blue-500"></i>
+            <span>朗讀此區</span>
+          </button>
+        </div>
+
+        <p class="text-xs text-slate-500 dark:text-slate-400">說明：第 6 題至第 15 題，請依文意選出最適當的選項。</p>
+
+        <!-- Options Bank -->
+        <div class="bg-slate-100 dark:bg-slate-700/50 p-3.5 rounded-xl border border-slate-200 dark:border-slate-600 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 text-xs font-mono font-medium text-slate-700 dark:text-slate-200">
+          <div><span class="font-bold text-blue-600 dark:text-blue-400">(A)</span> fundamental</div>
+          <div><span class="font-bold text-blue-600 dark:text-blue-400">(B)</span> pollute</div>
+          <div><span class="font-bold text-blue-600 dark:text-blue-400">(C)</span> toxic</div>
+          <div><span class="font-bold text-blue-600 dark:text-blue-400">(D)</span> benefit</div>
+          <div><span class="font-bold text-blue-600 dark:text-blue-400">(E)</span> reduces</div>
+          <div><span class="font-bold text-blue-600 dark:text-blue-400">(F)</span> pioneered</div>
+          <div><span class="font-bold text-blue-600 dark:text-blue-400">(G)</span> combined</div>
+          <div><span class="font-bold text-blue-600 dark:text-blue-400">(H)</span> applications</div>
+          <div><span class="font-bold text-blue-600 dark:text-blue-400">(I)</span> essence</div>
+          <div><span class="font-bold text-blue-600 dark:text-blue-400">(J)</span> sturdy</div>
+        </div>
+
+        <div id="section-2-text" class="text-base md:text-lg leading-relaxed text-slate-800 dark:text-slate-200 space-y-3 font-serif">
+          <p class="passage-para">
+            Algae, plant-like organisms like kelp and seaweed, may seem like pretty simple stuff. Yet algae have many startling uses and could even save the world.
+          </p>
+          <p class="passage-para">
+            Algae can be turned into shoe padding that is lightweight, <span class="passage-blank">(6)</span>, and more comfortable than customary padding. One shoe company has even started making entire shoes out of algae that can be worn in water as well as on land. Next time you're thirsty, consider drinking from a water bottle made from algae powder. As the bottle is a biological product, it is fully biodegradable and won't <span class="passage-blank">(7)</span> the environment. Algae-based wrapping has been <span class="passage-blank">(8)</span> by the company "Evoware." Making wrapping from algae has the dual <span class="passage-blank">(9)</span> of reducing plastic waste and providing something edible, just in case you're extra hungry. Algae are actually full of nutrients and one type, Spirulina, is especially healthy. Each gram of Spirulina contains more vitamins and minerals than carrots or spinach and provides more protein than a gram of red meat. Best of all, it's cheap and easy to cultivate!
+          </p>
+          <p class="passage-para">
+            Although algae can be used for many things, a(n) <span class="passage-blank">(10)</span> benefit is its capability to purify the environment. Algae get rid of <span class="passage-blank">(11)</span> chemicals from polluted water, as well as carbon dioxide from the atmosphere. In addition, farmers have discovered that feeding algae to cows radically <span class="passage-blank">(12)</span> their methane gas output. This is a significant environmental breakthrough, as methane does more damage to our environment than all the world's cars, trucks, and airplanes <span class="passage-blank">(13)</span>.
+          </p>
+          <p class="passage-para">
+            Collectively, algae's many <span class="passage-blank">(14)</span> make them far more important than most people realize. These organisms may be humble in appearance, but in <span class="passage-blank">(15)</span> they are splendidly useful.
+          </p>
+        </div>
+      </section>
+
+      <!-- Section III: 篇章結構 -->
+      <section class="bg-white dark:bg-slate-800 rounded-2xl p-5 md:p-7 shadow-sm border border-slate-200 dark:border-slate-700 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+          <div class="flex items-center space-x-3">
+            <span class="bg-blue-600 text-white font-bold text-xs px-2.5 py-1 rounded-md">III</span>
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white">篇章結構 (Discourse Structure: Inventions)</h2>
+          </div>
+          <button onclick="readSectionText('section-3-text')" class="text-xs bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 px-3 py-1.5 rounded-lg text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+            <i class="fa-solid fa-volume-high text-blue-500"></i>
+            <span>朗讀此區</span>
+          </button>
+        </div>
+
+        <p class="text-xs text-slate-500 dark:text-slate-400">說明：第 16 題至第 19 題，請選出填入空格中最適合的句子。</p>
+
+        <!-- Structure options card -->
+        <div class="bg-blue-50/70 dark:bg-slate-700/40 p-3.5 rounded-xl border border-blue-100 dark:border-slate-600 space-y-2 text-xs md:text-sm text-slate-700 dark:text-slate-300">
+          <div><strong class="text-blue-600 dark:text-blue-400">(A)</strong> If she applied a thin white paint with a small brush to her work, she could conceal her mistakes.</div>
+          <div><strong class="text-blue-600 dark:text-blue-400">(B)</strong> We can expect more imaginative solutions in times to come.</div>
+          <div><strong class="text-blue-600 dark:text-blue-400">(C)</strong> But do you know how this invention came about?</div>
+          <div><strong class="text-blue-600 dark:text-blue-400">(D)</strong> However, inventors often face numerous challenges along the way.</div>
+          <div><strong class="text-blue-600 dark:text-blue-400">(E)</strong> In some cases, though, inventions come about by accident.</div>
+        </div>
+
+        <div id="section-3-text" class="text-base md:text-lg leading-relaxed text-slate-800 dark:text-slate-200 space-y-3 font-serif">
+          <p class="passage-para">
+            The need for solutions to problems in our daily lives often leads to new and notable inventions. Here are some examples of inventions designed to resolve universal problems.
+          </p>
+          <p class="passage-para">
+            If you accidentally cut yourself, the idea of using a Band-Aid may logically spring to mind. <span class="passage-blank">(16)</span> Earle Dickson noticed that his wife often burned or cut herself while cooking. She would then require his help to bandage the wound. Dickson couldn't always be there to lend a hand. Therefore, he invented a bandage that she could easily apply herself. These adhesive bandages—Band-Aids—are now commonplace in every household.
+          </p>
+          <p class="passage-para">
+            Then there was Bette Nesmith Graham, a secretary who wanted a straightforward way to correct her typing mistakes. One day, as she watched painters touch up a wall with paint, it struck her that the same procedure could be used on paper. <span class="passage-blank">(17)</span> This handy invention eventually came to be known as Liquid Paper.
+          </p>
+          <p class="passage-para">
+            <span class="passage-blank">(18)</span> In 1908, the New York tea seller, Thomas Sullivan, decided to put tea leaves in small silk bags as samples for customers. He intended for customers to remove the loose leaves from each bag before brewing a pot of tea. However, some people got the wrong idea and began putting the unopened bags directly into hot water, and so the convention of using tea bags was born.
+          </p>
+          <p class="passage-para">
+            If the simple need to solve a problem can motivate people to find creative solutions, undoubtedly inventors of the future will continue to conceive of fresh ideas. <span class="passage-blank">(19)</span> If it weren't for great inventions, our lives would be a lot more troublesome.
+          </p>
+        </div>
+      </section>
+
+      <!-- Section IV: 閱讀測驗 -->
+      <section class="bg-white dark:bg-slate-800 rounded-2xl p-5 md:p-7 shadow-sm border border-slate-200 dark:border-slate-700 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+          <div class="flex items-center space-x-3">
+            <span class="bg-blue-600 text-white font-bold text-xs px-2.5 py-1 rounded-md">IV</span>
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white">閱讀測驗 (Peculiar Museums)</h2>
+          </div>
+          <button onclick="readSectionText('section-4-text')" class="text-xs bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 px-3 py-1.5 rounded-lg text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+            <i class="fa-solid fa-volume-high text-blue-500"></i>
+            <span>朗讀此區</span>
+          </button>
+        </div>
+
+        <div id="section-4-text" class="text-base md:text-lg leading-relaxed text-slate-800 dark:text-slate-200 space-y-3 font-serif">
+          <p class="passage-para">
+            When you think of museums, what comes to mind? You might think of paintings, sculptures, and antique artifacts. You probably won't immediately think of alien spacecraft, socks, and carrots. Yet there are museums for all of those things. In fact, mention any object, and it probably has its own museum.
+          </p>
+          <p class="passage-para">
+            Take ramen noodles, for example. A museum in Yokohama, Japan, tells the story of this popular food. You can see bowls, chopsticks, and some of the machinery that the Japanese used to make ramen. There is even a floor in the museum that looks like Tokyo in 1958. If all of this whets your appetite, you'll most likely want to buy a bowl of ramen noodles before you leave.
+          </p>
+          <p class="passage-para">
+            Meanwhile, in other parts of the world, you can find many more peculiar museums. In the United States, for example, you can visit the Museum of Bad Art. This museum assembles, preserves, and displays the worst art imaginable. It has paintings in which people look like monsters and mountains look like ice cream cones. Another American town is home to the Salt and Pepper Shaker Museum. This museum is the result of one woman's obsession with the small tabletop items. The museum currently exhibits 22,000 sets in shapes as varied as McDonald's menu items, skeletons, and every conceivable vegetable. Visitors are welcome in the gift shop if they are keen to start their own collections! Over in Europe, the Museum of Torture is popular with tourists. It has more than 60 torture instruments inside. They were all intended to hurt people in very dreadful ways.
+          </p>
+          <p class="passage-para">
+            So the next time you want some exposure to culture, forget about New York's Museum of Modern Art and Michelangelo's David. Instead, check out the Lawnmower Museum, the Dog Collar Museum, or the International Museum of Toilets. You're sure to have a lot of fun!
+          </p>
+        </div>
+      </section>
+
+      <!-- Section V: 混合題 -->
+      <section class="bg-white dark:bg-slate-800 rounded-2xl p-5 md:p-7 shadow-sm border border-slate-200 dark:border-slate-700 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+          <div class="flex items-center space-x-3">
+            <span class="bg-blue-600 text-white font-bold text-xs px-2.5 py-1 rounded-md">V</span>
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white">混合題 (Working Holidays)</h2>
+          </div>
+          <button onclick="readSectionText('section-5-text')" class="text-xs bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 px-3 py-1.5 rounded-lg text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+            <i class="fa-solid fa-volume-high text-blue-500"></i>
+            <span>朗讀此區</span>
+          </button>
+        </div>
+
+        <div id="section-5-text" class="space-y-4">
+          <p class="passage-para text-base md:text-lg leading-relaxed text-slate-800 dark:text-slate-200 font-serif">
+            Vacations can be very expensive. You have to pay for plane tickets, hotels, and food. But never fear, there is an answer: a working holiday. On a working holiday, you can travel and work at the same time, therefore solving the problem of cost. Take a look at the following four people sharing their working holiday experiences.
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-slate-50 dark:bg-slate-700/40 p-4 rounded-xl border border-slate-200 dark:border-slate-600 space-y-1.5 text-sm">
+              <h3 class="font-bold text-blue-600 dark:text-blue-400 text-base">(A) Chris</h3>
+              <p class="passage-para font-serif leading-relaxed text-slate-700 dark:text-slate-300">
+                I spent the last summer working as a balloon chaser on my working holiday in Europe. Assisting the hot-air balloon crew, I used maps and information from the pilot to figure out the perfect landing spot. They were very patient and friendly. Some of the people I worked with during that time even became my very close friends.
+              </p>
+            </div>
+            <div class="bg-slate-50 dark:bg-slate-700/40 p-4 rounded-xl border border-slate-200 dark:border-slate-600 space-y-1.5 text-sm">
+              <h3 class="font-bold text-blue-600 dark:text-blue-400 text-base">(B) Andrea</h3>
+              <p class="passage-para font-serif leading-relaxed text-slate-700 dark:text-slate-300">
+                My deep passion for coffee led me to choose to work in a café on my working holiday. At first, I had a hard time remembering all the terms and recipes for different coffee creations in a foreign language. However, with practice, I overcame the difficulty and gained confidence in my barista skills.
+              </p>
+            </div>
+            <div class="bg-slate-50 dark:bg-slate-700/40 p-4 rounded-xl border border-slate-200 dark:border-slate-600 space-y-1.5 text-sm">
+              <h3 class="font-bold text-blue-600 dark:text-blue-400 text-base">(C) Pamela</h3>
+              <p class="passage-para font-serif leading-relaxed text-slate-700 dark:text-slate-300">
+                Spending my working holiday in the French Alps as a hotel staff member was a dream come true. I got to embrace the beauty of the mountains while working in the hotel industry. When I wasn't assisting guests, I went skiing or just chilled out and enjoyed the landscape. It was a truly unforgettable experience.
+              </p>
+            </div>
+            <div class="bg-slate-50 dark:bg-slate-700/40 p-4 rounded-xl border border-slate-200 dark:border-slate-600 space-y-1.5 text-sm">
+              <h3 class="font-bold text-blue-600 dark:text-blue-400 text-base">(D) Leonard</h3>
+              <p class="passage-para font-serif leading-relaxed text-slate-700 dark:text-slate-300">
+                I worked as a koala catcher during my working holiday in Australia. We needed to protect the wild koalas by capturing them so that the government could release them into safer areas. This might look fun, but it's also an important job—if the koalas are not caught, they most likely die.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- TAB 2: WORD BANK (UNITS 20-25) -->
+    <div id="tab-wordbank" class="hidden space-y-6">
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <i class="fa-solid fa-book-bookmark text-blue-600"></i>
+            <span>Units 20–25 核心單字庫</span>
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">涵蓋測驗錯題與課本核心詞彙，支援點擊聽發音與字卡（Flashcard）練習</p>
+        </div>
+
+        <div class="flex items-center space-x-2 w-full md:w-auto">
+          <input type="text" id="word-search" oninput="filterWordBank()" placeholder="搜尋單字或中文..." class="w-full md:w-64 bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs rounded-xl px-3.5 py-2.5 border border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <button onclick="openFlashcardModal()" class="whitespace-nowrap bg-blue-600 text-white font-semibold text-xs px-4 py-2.5 rounded-xl hover:bg-blue-700 transition flex items-center gap-1.5 shadow-md shadow-blue-500/20">
+            <i class="fa-solid fa-clone"></i>
+            <span>卡片模式</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Word Bank Grid Container -->
+      <div id="wordbank-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+        <!-- Rendered dynamically via JavaScript -->
+      </div>
+    </div>
+
+    <!-- TAB 3: QUIZ & ANSWERS (QUESTIONS 1-27) -->
+    <div id="tab-quiz" class="hidden space-y-6">
+      <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <i class="fa-solid fa-list-check text-blue-600"></i>
+            <span>Unit 5 測驗題庫 (Q1 - Q27)</span>
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">填寫答案後點擊「提交測驗」可獲得即時成績與繁體中文詳細解析</p>
+        </div>
+
+        <div class="flex items-center space-x-3">
+          <button onclick="submitQuiz()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition shadow-md shadow-emerald-500/20 flex items-center gap-1.5">
+            <i class="fa-solid fa-check-circle"></i>
+            <span>提交測驗核對</span>
+          </button>
+          <button onclick="resetQuiz()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold text-xs px-3 py-2.5 rounded-xl transition">
+            重置
+          </button>
+        </div>
+      </div>
+
+      <!-- Quiz Results Banner (Hidden by default) -->
+      <div id="quiz-score-banner" class="hidden bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-5 rounded-2xl shadow-md text-center space-y-2">
+        <div class="text-xs font-semibold uppercase tracking-widest text-blue-200">測驗結果 Assessment Score</div>
+        <div id="quiz-score-text" class="text-3xl font-black">0 / 27 (0%)</div>
+        <p id="quiz-score-msg" class="text-xs text-blue-100">繼續加油！下方提供完整解析與錯題複習。</p>
+      </div>
+
+      <!-- Questions Container -->
+      <div id="quiz-questions-list" class="space-y-4">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <!-- TAB 4: SETTINGS & PWA INFO -->
+    <div id="tab-settings" class="hidden space-y-6">
+      <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 space-y-4">
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <i class="fa-solid fa-mobile-screen-button text-blue-600"></i>
+          <span>PWA 離線應用程式與設定</span>
+        </h2>
+        <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+          本應用程式採用 **Progressive Web App (PWA)** 架構開發，具備離線快取能力與離線字典查字功能。您可以將其加到手機主畫面或電腦桌面，體驗類似原生 App 的使用感受。
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+          <div class="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-xl border border-slate-200 dark:border-slate-600 space-y-2">
+            <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+              <i class="fa-solid fa-download text-blue-500"></i>
+              <span>如何安裝為獨立 App？</span>
+            </h3>
+            <ul class="text-xs text-slate-600 dark:text-slate-400 space-y-1.5 list-disc list-inside">
+              <li><strong>iOS Safari:</strong> 點擊下方分享按鈕 <i class="fa-solid fa-share-nodes"></i>，選擇「加入主畫面」。</li>
+              <li><strong>Android / Chrome:</strong> 點擊頂部「安裝 App」按鈕或選單中的「安裝應用程式」。</li>
+              <li><strong>桌面 Edge / Chrome:</strong> 點擊網址列右側的安裝圖示即可。</li>
+            </ul>
+          </div>
+
+          <div class="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-xl border border-slate-200 dark:border-slate-600 space-y-2">
+            <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+              <i class="fa-solid fa-volume-high text-blue-500"></i>
+              <span>語音發音設定 (Web Speech API)</span>
+            </h3>
+            <div class="text-xs text-slate-600 dark:text-slate-400 space-y-2">
+              <p>語音合成音色: <span id="speech-voice-name" class="font-bold text-slate-800 dark:text-slate-200">載入中...</span></p>
+              <button onclick="testSpeechVoice()" class="bg-blue-100 dark:bg-blue-900/40 hover:bg-blue-200 text-blue-700 dark:text-blue-300 font-semibold px-3 py-1.5 rounded-lg text-xs transition">
+                <i class="fa-solid fa-play mr-1"></i>測試英文發音 (Test Voice)
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MOBILE BOTTOM NAVIGATION BAR -->
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 z-30 flex justify-around py-2 shadow-lg">
+    <button onclick="switchTab('passages')" id="mob-btn-passages" class="flex flex-col items-center text-blue-600 dark:text-blue-400 text-xs font-medium">
+      <i class="fa-solid fa-book-open text-base mb-0.5"></i>
+      <span>文章</span>
+    </button>
+    <button onclick="switchTab('wordbank')" id="mob-btn-wordbank" class="flex flex-col items-center text-slate-500 dark:text-slate-400 text-xs font-medium">
+      <i class="fa-solid fa-layer-group text-base mb-0.5"></i>
+      <span>單字庫</span>
+    </button>
+    <button onclick="switchTab('quiz')" id="mob-btn-quiz" class="flex flex-col items-center text-slate-500 dark:text-slate-400 text-xs font-medium">
+      <i class="fa-solid fa-pen-to-square text-base mb-0.5"></i>
+      <span>測驗</span>
+    </button>
+    <button onclick="switchTab('settings')" id="mob-btn-settings" class="flex flex-col items-center text-slate-500 dark:text-slate-400 text-xs font-medium">
+      <i class="fa-solid fa-sliders text-base mb-0.5"></i>
+      <span>設定</span>
+    </button>
+  </nav>
+
+  <!-- PWA: update toast -->
+  <div id="update-toast" class="hidden fixed left-1/2 -translate-x-1/2 bottom-24 md:bottom-6 z-[60] bg-slate-900 text-white text-sm rounded-xl shadow-2xl px-4 py-3 flex items-center gap-3">
+    <span>有新版本可用</span>
+    <button id="update-btn" class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg">更新</button>
+  </div>
+
+  <!-- PWA: iOS install hint -->
+  <div id="ios-install-hint" class="hidden fixed left-3 right-3 bottom-20 md:hidden z-[60] bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-xs rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 p-3 flex items-start gap-3">
+    <i class="fa-solid fa-share-nodes text-blue-500 text-base mt-0.5"></i>
+    <div class="flex-1">安裝到主畫面：點 Safari 的分享按鈕，再選「加入主畫面」。</div>
+    <button onclick="dismissIOSHint()" class="text-slate-400 hover:text-slate-600 text-base leading-none" aria-label="關閉"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+
+  <!-- DICTIONARY MODAL / BOTTOM SHEET -->
+  <div id="dict-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-end md:items-center justify-center p-0 md:p-4 transition-opacity">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-t-3xl md:rounded-2xl p-6 shadow-2xl space-y-4 border border-slate-200 dark:border-slate-700 transform transition-transform">
+      <div class="flex items-start justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+        <div>
+          <div class="flex items-center space-x-2">
+            <h3 id="modal-word" class="text-2xl font-bold text-slate-900 dark:text-white capitalize">Word</h3>
+            <button id="modal-audio-btn" class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 hover:bg-blue-200 transition flex items-center justify-center">
+              <i class="fa-solid fa-volume-high"></i>
+            </button>
+          </div>
+          <div class="flex items-center space-x-2 text-xs text-slate-500 dark:text-slate-400 mt-1">
+            <span id="modal-pos" class="italic font-serif">pos.</span>
+            <span id="modal-phonetic" class="font-mono">/ IPA /</span>
+          </div>
+        </div>
+        <button onclick="closeDictModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl p-1">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Definition Box -->
+      <div class="space-y-3">
+        <div>
+          <div class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">繁體中文解釋</div>
+          <p id="modal-zh" class="text-lg font-bold text-blue-600 dark:text-blue-400">定義加載中...</p>
+        </div>
+
+        <div>
+          <div class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">例句 / 文脈 note</div>
+          <p id="modal-example" class="text-sm text-slate-600 dark:text-slate-300 italic bg-slate-50 dark:bg-slate-700/50 p-3 rounded-xl border border-slate-200 dark:border-slate-600">
+            Example sentence here.
+          </p>
+        </div>
+      </div>
+
+      <div class="pt-2 flex justify-end">
+        <button onclick="closeDictModal()" class="w-full md:w-auto bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 text-sm font-semibold px-5 py-2.5 rounded-xl transition">
+          關閉
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLASHCARD MODAL -->
+  <div id="flashcard-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-6 border border-slate-200 dark:border-slate-700">
+      <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700 pb-3">
+        <h3 class="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+          <i class="fa-solid fa-clone text-blue-500"></i>
+          <span>單字卡 Flashcard</span>
+        </h3>
+        <span id="card-index-text" class="text-xs text-slate-500 font-semibold">1 / 50</span>
+      </div>
+
+      <!-- Card Box -->
+      <div id="card-box" onclick="flipCard()" class="min-h-[220px] bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-700 dark:to-slate-700/60 rounded-2xl border-2 border-dashed border-blue-200 dark:border-slate-500 p-6 flex flex-col items-center justify-center text-center cursor-pointer select-none transition-transform active:scale-95">
+        <div id="card-front" class="space-y-2">
+          <h4 id="card-word" class="text-3xl font-extrabold text-blue-700 dark:text-blue-300">word</h4>
+          <p id="card-pos-phonetic" class="text-xs text-slate-500 dark:text-slate-400">/ pos / IPA</p>
+          <span class="text-[10px] bg-blue-100 dark:bg-blue-900/60 text-blue-600 dark:text-blue-300 px-2 py-0.5 rounded-full inline-block mt-2">點擊翻面查看中文</span>
+        </div>
+        <div id="card-back" class="hidden space-y-2">
+          <p id="card-zh" class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">繁體中文釋義</p>
+          <p id="card-example" class="text-xs text-slate-600 dark:text-slate-300 italic px-2">Example sentence...</p>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="flex items-center justify-between gap-3">
+        <button onclick="prevCard()" class="flex-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-semibold text-xs py-2.5 rounded-xl transition">
+          <i class="fa-solid fa-chevron-left mr-1"></i>上一張
+        </button>
+        <button onclick="speakCardWord()" class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 hover:bg-blue-200 transition flex items-center justify-center">
+          <i class="fa-solid fa-volume-high"></i>
+        </button>
+        <button onclick="nextCard()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs py-2.5 rounded-xl transition">
+          下一張<i class="fa-solid fa-chevron-right ml-1"></i>
+        </button>
+      </div>
+
+      <div class="text-center">
+        <button onclick="closeFlashcardModal()" class="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">關閉卡片模式</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- SCRIPT LOGIC -->
+  <script>
+    /* ==========================================================================
+       1. COMPREHENSIVE DICTIONARY DATA (UNIT 5 & UNITS 20-25 WORDS)
+       ========================================================================== */
+    const dictionary = {
+      // Unit 5 Words
+      "business": { zh: "商業；企業", pos: "n.", ipa: "/ˈbɪznəs/", ex: "Many businesses in Taiwan offer reward programs." },
+      "repeat": { zh: "重複的；重覆", pos: "adj./v.", ipa: "/rɪˈpiːt/", ex: "Stores want more repeat customers." },
+      "loyalty": { zh: "忠誠度；忠心", pos: "n.", ipa: "/ˈlɔɪəlti/", ex: "Reward cards build customer loyalty." },
+      "discount": { zh: "折扣", pos: "n.", ipa: "/ˈdɪskaʊnt/", ex: "Points can be exchanged for discounts." },
+      "incorporating": { zh: "納入；併入", pos: "v.", ipa: "/ɪnˈkɔːrpəreɪtɪŋ/", ex: "Organizations are incorporating reward ideas." },
+      "vaccine": { zh: "疫苗", pos: "n.", ipa: "/vækˈsiːn/", ex: "People who get vaccines earn reward points." },
+      "encourage": { zh: "鼓勵；促進", pos: "v.", ipa: "/ɪnˈkɜːrɪdʒ/", ex: "The program aims to encourage kids to read." },
+      "motivate": { zh: "激勵；推動", pos: "v.", ipa: "/ˈmoʊtɪveɪt/", ex: "Reward programs motivate healthy habits." },
+      "algae": { zh: "藻類；海藻", pos: "n.", ipa: "/ˈælɡiː/", ex: "Algae could even save the world." },
+      "padding": { zh: "襯墊；填料", pos: "n.", ipa: "/ˈpædɪŋ/", ex: "Algae can be turned into shoe padding." },
+      "biodegradable": { zh: "可生物分解的", pos: "adj.", ipa: "/ˌbaɪoʊdɪˈɡreɪdəbl/", ex: "Algae water bottles are fully biodegradable." },
+      "edible": { zh: "可食用的", pos: "adj.", ipa: "/ˈedəbl/", ex: "The wrapping is completely edible." },
+      "spirulina": { zh: "螺旋藻", pos: "n.", ipa: "/ˌspɪrəˈliːnə/", ex: "Spirulina is full of essential nutrients." },
+      "methane": { zh: "甲烷；沼氣", pos: "n.", ipa: "/ˈmeθeɪn/", ex: "Cows produce methane gas." },
+      "breakthrough": { zh: "突破；重大發現", pos: "n.", ipa: "/ˈbreɪkθruː/", ex: "Reducing methane is an environmental breakthrough." },
+      "adhesive": { zh: "黏性的；膠帶", pos: "adj./n.", ipa: "/ədˈhiːsɪv/", ex: "Adhesive bandages are common." },
+      "conceal": { zh: "隱藏；遮蓋", pos: "v.", ipa: "/kənˈsiːl/", ex: "Paint was used to conceal typing mistakes." },
+      "peculiar": { zh: "特殊的；奇特的", pos: "adj.", ipa: "/pɪˈkjuːliər/", ex: "You can find many peculiar museums." },
+      "preserves": { zh: "保存；保護", pos: "v.", ipa: "/prɪˈzɜːrvz/", ex: "The museum preserves unusual artworks." },
+      "obsession": { zh: "著迷；癡迷", pos: "n.", ipa: "/əbˈseʃn/", ex: "Her collection began with a small obsession." },
+      "instrument": { zh: "儀器；器具", pos: "n.", ipa: "/ˈɪnstrəmənt/", ex: "The museum exhibits ancient instruments." },
+
+      // Units 20-25 Words
+      "dump": { zh: "傾倒；拋棄", pos: "v.", ipa: "/dʌmp/", ex: "It is illegal to dump waste into rivers." },
+      "election": { zh: "選舉", pos: "n.", ipa: "/ɪˈlekʃn/", ex: "The mayor is confident he will win the election." },
+      "temper": { zh: "脾氣", pos: "n.", ipa: "/ˈtempər/", ex: "She seldom loses her temper with us." },
+      "weaken": { zh: "削弱；減弱", pos: "v.", ipa: "/ˈwiːkən/", ex: "Lack of exercise may weaken your body." },
+      "thankful": { zh: "感激的；感謝的", pos: "adj.", ipa: "/ˈθæŋkfl/", ex: "We should be thankful for what we have." },
+      "whistle": { zh: "哨子；口哨", pos: "n.", ipa: "/ˈwɪsl/", ex: "The lifeguard blew his whistle loudly." },
+      "motel": { zh: "汽車旅館", pos: "n.", ipa: "/moʊˈtel/", ex: "They decided to stay at a motel." },
+      "skip": { zh: "略過；跳過", pos: "v.", ipa: "/skɪp/", ex: "I skipped a few chapters in the book." },
+      "murder": { zh: "謀殺", pos: "v./n.", ipa: "/ˈmɜːrdər/", ex: "The character murdered the evil king." },
+      "similarity": { zh: "相似之處", pos: "n.", ipa: "/ˌsɪməlˈærəti/", ex: "You can see the similarity between brothers." },
+      "meaningful": { zh: "有意義的", pos: "adj.", ipa: "/ˈmiːnɪŋfl/", ex: "Teaching is a very meaningful career." },
+      "gum": { zh: "口香糖；牙齦", pos: "n.", ipa: "/ɡʌm/", ex: "Please spit the chewing gum out." },
+      "headquarters": { zh: "總部", pos: "n.", ipa: "/ˈhedkwɔːrtərz/", ex: "They established their headquarters in NYC." },
+      "familiarity": { zh: "熟悉；親近", pos: "n.", ipa: "/fəˌmɪliˈærəti/", ex: "Her familiarity with the lab helped the team." },
+      "glowed": { zh: "發光；發熱", pos: "v. (past)", ipa: "/ɡloʊd/", ex: "The lantern glowed dimly in the corner." },
+      "knot": { zh: "結；婚姻", pos: "n.", ipa: "/nɑːt/", ex: "They plan to tie the knot next spring." },
+      "chimney": { zh: "煙囪", pos: "n.", ipa: "/ˈtʃɪmni/", ex: "Smoke comes out of the factory chimney." },
+      "faucet": { zh: "水頭", pos: "n.", ipa: "/ˈfɔːsɪt/", ex: "Please turn off the water faucet." },
+      "sword": { zh: "劍；刀", pos: "n.", ipa: "/sɔːrd/", ex: "The knight raised his sharp sword." },
+      "account": { zh: "帳戶；描述", pos: "n.", ipa: "/əˈkaʊnt/", ex: "She withdrew money from her bank account." },
+      "slippery": { zh: "滑的；乾滑的", pos: "adj.", ipa: "/ˈslɪpəri/", ex: "The road is wet and slippery." },
+      "swollen": { zh: "腫脹的", pos: "adj.", ipa: "/ˈswoʊlən/", ex: "His ankle had swollen after the fall." },
+      "gossip": { zh: "八卦；流言", pos: "n.", ipa: "/ˈɡɑːsɪp/", ex: "There is a lot of gossip going around." },
+      "penny": { zh: "便士；小錢", pos: "n.", ipa: "/ˈpeni/", ex: "He didn't have a penny to his name." },
+      "bravery": { zh: "勇敢；英勇", pos: "n.", ipa: "/ˈbreɪvəri/", ex: "He was awarded a medal for bravery." },
+      "dislike": { zh: "不喜歡；厭惡", pos: "v./n.", ipa: "/dɪsˈlaɪk/", ex: "Johnny dislikes all vegetables." },
+      "occasional": { zh: "偶爾的", pos: "adj.", ipa: "/əˈkeɪʒənl/", ex: "There will be occasional showers today." },
+      "customer": { zh: "顧客", pos: "n.", ipa: "/ˈkʌstəmər/", ex: "The clerk helped the angry customer." },
+      "government": { zh: "政府", pos: "n.", ipa: "/ˈɡʌvərnmənt/", ex: "Citizens expressed concerns to the government." },
+      "spoil": { zh: "破壞；寵壞", pos: "v.", ipa: "/spɔɪl/", ex: "It is easy to spoil a relationship." },
+      "beast": { zh: "野獸", pos: "n.", ipa: "/biːst/", ex: "The hunter followed the trail of the beast." },
+      "lifetime": { zh: "一生；終身", pos: "n.", ipa: "/ˈlaɪftaɪm/", ex: "She was recognized for a lifetime of service." },
+      "spaghetti": { zh: "義大利麵", pos: "n.", ipa: "/spəˈɡeti/", ex: "Spaghetti is a famous Italian dish." },
+      "poverty": { zh: "貧窮", pos: "n.", ipa: "/ˈpɑːvərti/", ex: "Those living in poverty need assistance." },
+      "receipt": { zh: "收據", pos: "n.", ipa: "/rɪˈsiːt/", ex: "Keep your receipt for returns." },
+      "tossed": { zh: "輾轉；翻來覆去", pos: "v. (past)", ipa: "/tɔːst/", ex: "She tossed and turned all night." },
+      "verses": { zh: "詩節；詩句", pos: "n.", ipa: "/ˈvɜːrsɪz/", ex: "Memorize several verses from the poem." },
+      "flame": { zh: "火焰", pos: "n.", ipa: "/fleɪm/", ex: "Keep children away from the open flame." },
+      "awful": { zh: "糟糕的；可怕的", pos: "adj.", ipa: "/ˈɔːfl/", ex: "He had an awful day at school." },
+      "bullets": { zh: "子彈", pos: "n.", ipa: "/ˈbʊlɪts/", ex: "The doctor removed the bullets safely." },
+      "regional": { zh: "區域的；地區的", pos: "adj.", ipa: "/ˈriːdʒənl/", ex: "He reports to the regional manager." },
+      "vitamins": { zh: "維生素", pos: "n.", ipa: "/ˈvaɪtəmɪnz/", ex: "Vegetables are rich in essential vitamins." },
+      "hints": { zh: "暗示；提示", pos: "n.", ipa: "/hɪnts/", ex: "She gave several hints about her gift." },
+      "pity": { zh: "同情；遺憾", pos: "n.", ipa: "/ˈpɪti/", ex: "The class felt deep pity for him." },
+      "merry": { zh: "歡樂的；愉快的", pos: "adj.", ipa: "/ˈmeri/", ex: "New Year's Eve is a merry time." },
+      "limb": { zh: "肢體；樹枝", pos: "n.", ipa: "/lɪm/", ex: "The doctor examined his injured limb." }
+    };
+
+    /* ==========================================================================
+       2. QUIZ QUESTIONS & ANSWERS (Q1 - Q27)
+       ========================================================================== */
+    const quizData = [
+      // Section I: 綜合測驗
+      { id: 1, section: "I. 綜合測驗", text: "1. stores have set up special programs that (1) customer loyalty.", options: ["(A) neglect", "(B) settle", "(C) declare", "(D) reward"], answer: "(D)", explanation: "(D) reward (獎勵)。句意為建立特別計畫來獎勵顧客的忠誠度。" },
+      { id: 2, section: "I. 綜合測驗", text: "2. They can then (2) these rewards for free items or discounts.", options: ["(A) show up", "(B) take off", "(C) turn in", "(D) stick to"], answer: "(C)", explanation: "(C) turn in (兌換/繳回)。此處表將獎勵點數/貼紙兌換為免費商品。" },
+      { id: 3, section: "I. 綜合測驗", text: "3. Points received can (3) for health checkups...", options: ["(A) exchange", "(B) be exchanged", "(C) be exchanging", "(D) exchanged"], answer: "(B)", explanation: "(B) be exchanged (被兌換)。被動語態 modal + be + p.p.。" },
+      { id: 4, section: "I. 綜合測驗", text: "4. (4) people's desire to earn free things, reward programs can do more...", options: ["(A) Thanks to", "(B) In order to", "(C) Regardless of", "(D) Aside from"], answer: "(A)", explanation: "(A) Thanks to (幸虧/由於)。點出獎勵計畫多虧了人們對免費東西的渴望。" },
+      { id: 5, section: "I. 綜合測驗", text: "5. They can be used to (5) healthy habits...", options: ["(A) forbid", "(B) promote", "(C) criticize", "(D) conceal"], answer: "(B)", explanation: "(B) promote (提倡/推廣)。提倡健康的習慣。" },
+
+      // Section II: 文意選填
+      { id: 6, section: "II. 文意選填", text: "6. shoe padding that is lightweight, (6), and more comfortable...", options: ["(A) fundamental", "(B) pollute", "(C) toxic", "(D) benefit", "(E) reduces", "(F) pioneered", "(G) combined", "(H) applications", "(I) essence", "(J) sturdy"], answer: "(J)", explanation: "(J) sturdy (堅固的)。形容鞋墊輕巧、堅固且舒適。" },
+      { id: 7, section: "II. 文意選填", text: "7. fully biodegradable and won't (7) the environment.", options: ["(A) fundamental", "(B) pollute", "(C) toxic", "(D) benefit", "(E) reduces", "(F) pioneered", "(G) combined", "(H) applications", "(I) essence", "(J) sturdy"], answer: "(B)", explanation: "(B) pollute (污染)。可完全生物分解且不會污染環境。" },
+      { id: 8, section: "II. 文意選填", text: "8. Algae-based wrapping has been (8) by the company 'Evoware.'", options: ["(A) fundamental", "(B) pollute", "(C) toxic", "(D) benefit", "(E) reduces", "(F) pioneered", "(G) combined", "(H) applications", "(I) essence", "(J) sturdy"], answer: "(F)", explanation: "(F) pioneered (率先開創/首創)。被公司率先開創發展。" },
+      { id: 9, section: "II. 文意選填", text: "9. Making wrapping from algae has the dual (9) of reducing plastic...", options: ["(A) fundamental", "(B) pollute", "(C) toxic", "(D) benefit", "(E) reduces", "(F) pioneered", "(G) combined", "(H) applications", "(I) essence", "(J) sturdy"], answer: "(D)", explanation: "(D) benefit (好處/益處)。具有減少塑膠垃圾的雙重好處。" },
+      { id: 10, section: "II. 文意選填", text: "10. a(n) (10) benefit is its capability to purify the environment.", options: ["(A) fundamental", "(B) pollute", "(C) toxic", "(D) benefit", "(E) reduces", "(F) pioneered", "(G) combined", "(H) applications", "(I) essence", "(J) sturdy"], answer: "(A)", explanation: "(A) fundamental (基本的/主要的)。主要的好處是淨化環境。" },
+      { id: 11, section: "II. 文意選填", text: "11. Algae get rid of (11) chemicals from polluted water...", options: ["(A) fundamental", "(B) pollute", "(C) toxic", "(D) benefit", "(E) reduces", "(F) pioneered", "(G) combined", "(H) applications", "(I) essence", "(J) sturdy"], answer: "(C)", explanation: "(C) toxic (有毒的)。消除污水中的有毒化學物質。" },
+      { id: 12, section: "II. 文意選填", text: "12. feeding algae to cows radically (12) their methane gas output.", options: ["(A) fundamental", "(B) pollute", "(C) toxic", "(D) benefit", "(E) reduces", "(F) pioneered", "(G) combined", "(H) applications", "(I) essence", "(J) sturdy"], answer: "(E)", explanation: "(E) reduces (減少)。大幅減少牛隻的甲烷排放。" },
+      { id: 13, section: "II. 文意選填", text: "13. than all the world's cars, trucks, and airplanes (13).", options: ["(A) fundamental", "(B) pollute", "(C) toxic", "(D) benefit", "(E) reduces", "(F) pioneered", "(G) combined", "(H) applications", "(I) essence", "(J) sturdy"], answer: "(G)", explanation: "(G) combined (加總/總和起來)。全球汽機車與飛機加總起來。" },
+      { id: 14, section: "II. 文意選填", text: "14. Collectively, algae's many (14) make them far more important...", options: ["(A) fundamental", "(B) pollute", "(C) toxic", "(D) benefit", "(E) reduces", "(F) pioneered", "(G) combined", "(H) applications", "(I) essence", "(J) sturdy"], answer: "(H)", explanation: "(H) applications (應用)。海藻的眾多應用使其極為重要。" },
+      { id: 15, section: "II. 文意選填", text: "15. but in (15) they are splendidly useful.", options: ["(A) fundamental", "(B) pollute", "(C) toxic", "(D) benefit", "(E) reduces", "(F) pioneered", "(G) combined", "(H) applications", "(I) essence", "(J) sturdy"], answer: "(I)", explanation: "(I) essence (本質上/實際上)。片語 in essence (本質上)。" },
+
+      // Section III: 篇章結構
+      { id: 16, section: "III. 篇章結構", text: "16. Band-Aid origins context (16)...", options: ["(A) If she applied a thin white paint with a small brush to her work, she could conceal her mistakes.", "(B) We can expect more imaginative solutions in times to come.", "(C) But do you know how this invention came about?", "(D) However, inventors often face numerous challenges along the way.", "(E) In some cases, though, inventions come about by accident."], answer: "(E)", explanation: "(E) In some cases, though, inventions come about by accident. (引出意外發明的例子)。" },
+      { id: 17, section: "III. 篇章結構", text: "17. Liquid Paper correction method (17)...", options: ["(A) If she applied a thin white paint with a small brush to her work, she could conceal her mistakes.", "(B) We can expect more imaginative solutions in times to come.", "(C) But do you know how this invention came about?", "(D) However, inventors often face numerous challenges along the way.", "(E) In some cases, though, inventions come about by accident."], answer: "(A)", explanation: "(A) If she applied a thin white paint... (說明如何用白漆遮蓋打字錯誤)。" },
+      { id: 18, section: "III. 篇章結構", text: "18. Tea bags accidental invention (18)...", options: ["(A) If she applied a thin white paint with a small brush to her work, she could conceal her mistakes.", "(B) We can expect more imaginative solutions in times to come.", "(C) But do you know how this invention came about?", "(D) However, inventors often face numerous challenges along the way.", "(E) In some cases, though, inventions come about by accident."], answer: "(C)", explanation: "(C) But do you know how this invention came about? (轉折引出茶包故事)。" },
+      { id: 19, section: "III. 篇章結構", text: "19. Conclusion on future inventions (19)...", options: ["(A) If she applied a thin white paint with a small brush to her work, she could conceal her mistakes.", "(B) We can expect more imaginative solutions in times to come.", "(C) But do you know how this invention came about?", "(D) However, inventors often face numerous challenges along the way.", "(E) In some cases, though, inventions come about by accident."], answer: "(B)", explanation: "(B) We can expect more imaginative solutions in times to come. (結尾展望未來發明)。" },
+
+      // Section IV: 閱讀測驗
+      { id: 20, section: "IV. 閱讀測驗", text: "20. What is the main idea of the article?", options: ["(A) Only some objects have their own museums.", "(B) There is a noodle museum in Japan.", "(C) Traditional museums are better.", "(D) There are many strange museums in the world."], answer: "(D)", explanation: "(D) 文章介紹了世界各地許多奇特、稀奇古怪的博物館。" },
+      { id: 21, section: "IV. 閱讀測驗", text: "21. According to the article, which of the following is NOT true?", options: ["(A) Alien spacecraft museum exists.", "(B) Ramen Museum shows Japan in 1950s.", "(C) Museum of Bad Art exhibits the best paintings.", "(D) Salt & Pepper Shaker museum created by obsessed woman."], answer: "(C)", explanation: "(C) 壞藝術博物館展出的是最糟糕的藝術品而非 best paintings。" },
+      { id: 22, section: "IV. 閱讀測驗", text: "22. Closest in meaning to 'preserves' in paragraph 3?", options: ["(A) Remembers", "(B) Destroys", "(C) Protects", "(D) Forgets"], answer: "(C)", explanation: "(C) Protects (保護/保存)。" },
+      { id: 23, section: "IV. 閱讀測驗", text: "23. What can be inferred about weird museums?", options: ["(A) Their uniqueness makes them worth visiting.", "(B) Too silly to be worthwhile.", "(C) Very expensive to visit.", "(D) U.S. has more weird museums than Europe."], answer: "(A)", explanation: "(A) 這些博物館獨特趣味，值得一訪。" },
+
+      // Section V: 混合題
+      { id: 24, section: "V. 混合題", text: "24. What problem can a working holiday solve? (Copy a sentence from passage)", type: "text", options: [], answer: "On a working holiday, you can travel and work at the same time, therefore solving the problem of cost.", explanation: "原文第一段結尾明確提到可解決旅費成本問題。" },
+      { id: 25, section: "V. 混合題", text: "25. Who encountered challenges during their working holiday?", options: ["(A) Chris", "(B) Andrea", "(C) Pamela", "(D) Leonard"], answer: "(B)", explanation: "(B) Andrea 提到最初很難記住外語菜單與配方。" },
+      { id: 26, section: "V. 混合題", text: "26. Who would find the map/navigation app most useful?", options: ["(A) Chris", "(B) Andrea", "(C) Pamela", "(D) Leonard"], answer: "(A)", explanation: "(A) Chris 是熱氣球追逐者，需看地圖找出降落點。" },
+      { id: 27, section: "V. 混合題", text: "27. Fill in blanks: a. [landing], b. [pilot], c. [released]", type: "blanks", options: [], answer: "a. landing, b. pilot, c. released", explanation: "a. landing site; b. pilot; c. released to safer environments." }
+    ];
+
+
+    /* ==========================================================================
+       3. INTERACTIVE WORD-TABBING / SPEECH ENGINE LOGIC
+       ========================================================================== */
+
+    // Wraps raw passage text in interactive spans for click-to-lookup
+    function makePassagesInteractive() {
+      const passageParas = document.querySelectorAll('.passage-para');
+      passageParas.forEach(p => {
+        // preserve blank spans (1), (2) etc.
+        const html = p.innerHTML;
+        // tokenization matching words while ignoring nested tags
+        const newHtml = html.replace(/([a-zA-Z’']+)(?![^<]*>)/g, (match) => {
+          const cleanWord = match.toLowerCase().replace(/[^a-z]/g, '');
+          if (cleanWord.length > 1) {
+            return `<span class="word-tap" onclick="lookupWord('${cleanWord}', this, event)">${match}</span>`;
+          }
+          return match;
+        });
+        p.innerHTML = newHtml;
+      });
+    }
+
+    let activeWordSpan = null;
+
+    function lookupWord(word, element, event) {
+      if (event) event.stopPropagation();
+
+      if (activeWordSpan) {
+        activeWordSpan.classList.remove('active-word');
+      }
+      if (element) {
+        activeWordSpan = element;
+        activeWordSpan.classList.add('active-word');
+      }
+
+      const modal = document.getElementById('dict-modal');
+      const wordHeading = document.getElementById('modal-word');
+      const posSpan = document.getElementById('modal-pos');
+      const phoneticSpan = document.getElementById('modal-phonetic');
+      const zhPara = document.getElementById('modal-zh');
+      const examplePara = document.getElementById('modal-example');
+      const audioBtn = document.getElementById('modal-audio-btn');
+
+      wordHeading.innerText = word;
+      
+      const entry = dictionary[word];
+      if (entry) {
+        posSpan.innerText = entry.pos;
+        phoneticSpan.innerText = entry.ipa;
+        zhPara.innerText = entry.zh;
+        examplePara.innerText = entry.ex;
+      } else {
+        // Dynamic fallback lookup
+        posSpan.innerText = "v./n.";
+        phoneticSpan.innerText = `/${word}/`;
+        zhPara.innerText = `${word} (點擊下方聽英語發音)`;
+        examplePara.innerText = `Context lookup for "${word}" in Unit 5 reading materials.`;
+      }
+
+      audioBtn.onclick = () => speakWord(word);
+      modal.classList.remove('hidden');
+
+      // auto speech on lookup
+      speakWord(word);
+    }
+
+    function closeDictModal() {
+      document.getElementById('dict-modal').classList.add('hidden');
+      if (activeWordSpan) {
+        activeWordSpan.classList.remove('active-word');
+      }
+    }
+
+
+    /* ==========================================================================
+       4. SPEECH SYNTHESIS (WEB SPEECH API)
+       ========================================================================== */
+    let synth = window.speechSynthesis;
+    let currentSpeechUtterance = null;
+    let speechRate = 1.0;
+
+    function speakWord(word) {
+      if (!synth) return;
+      synth.cancel();
+      const utter = new SpeechSynthesisUtterance(word);
+      utter.lang = 'en-US';
+      utter.rate = speechRate;
+      synth.speak(utter);
+    }
+
+    function changeSpeechRate() {
+      const select = document.getElementById('speed-select');
+      speechRate = parseFloat(select.value);
+      if (synth && synth.speaking) {
+        // restart with new rate
+      }
+    }
+
+    let isGlobalSpeaking = false;
+
+    function toggleGlobalSpeech() {
+      if (isGlobalSpeaking) {
+        stopSpeech();
+      } else {
+        readSectionText('tab-passages');
+      }
+    }
+
+    function readSectionText(containerId) {
+      if (!synth) return;
+      synth.cancel();
+
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      const text = container.innerText;
+      currentSpeechUtterance = new SpeechSynthesisUtterance(text);
+      currentSpeechUtterance.lang = 'en-US';
+      currentSpeechUtterance.rate = speechRate;
+
+      const icon = document.getElementById('global-tts-icon');
+      const statusText = document.getElementById('tts-status-text');
+
+      currentSpeechUtterance.onstart = () => {
+        isGlobalSpeaking = true;
+        if (icon) icon.className = 'fa-solid fa-pause';
+        if (statusText) statusText.innerText = '正在播放朗讀中...';
+      };
+
+      currentSpeechUtterance.onend = currentSpeechUtterance.onerror = () => {
+        isGlobalSpeaking = false;
+        if (icon) icon.className = 'fa-solid fa-play';
+        if (statusText) statusText.innerText = '點擊播放文章語音或選擇語速';
+      };
+
+      synth.speak(currentSpeechUtterance);
+    }
+
+    function stopSpeech() {
+      if (synth) {
+        synth.cancel();
+      }
+      isGlobalSpeaking = false;
+      const icon = document.getElementById('global-tts-icon');
+      const statusText = document.getElementById('tts-status-text');
+      if (icon) icon.className = 'fa-solid fa-play';
+      if (statusText) statusText.innerText = '已停止朗讀';
+    }
+
+
+    /* ==========================================================================
+       5. WORD BANK & FLASHCARD SYSTEM
+       ========================================================================== */
+    function renderWordBank() {
+      const grid = document.getElementById('wordbank-grid');
+      grid.innerHTML = '';
+
+      Object.keys(dictionary).forEach(key => {
+        const item = dictionary[key];
+        const cardHtml = `
+          <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition space-y-2 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between">
+                <h3 class="font-bold text-lg text-slate-900 dark:text-white capitalize">${key}</h3>
+                <button onclick="speakWord('${key}')" class="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 hover:bg-blue-100 transition flex items-center justify-center">
+                  <i class="fa-solid fa-volume-high text-xs"></i>
+                </button>
+              </div>
+              <div class="text-xs text-slate-400 font-mono mb-1">${item.pos} ${item.ipa}</div>
+              <div class="text-sm font-bold text-blue-600 dark:text-blue-400">${item.zh}</div>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 italic bg-slate-50 dark:bg-slate-700/40 p-2 rounded-lg border border-slate-100 dark:border-slate-600">
+              "${item.ex}"
+            </p>
+          </div>
+        `;
+        grid.innerHTML += cardHtml;
+      });
+    }
+
+    function filterWordBank() {
+      const query = document.getElementById('word-search').value.toLowerCase();
+      const grid = document.getElementById('wordbank-grid');
+      grid.innerHTML = '';
+
+      Object.keys(dictionary).forEach(key => {
+        const item = dictionary[key];
+        if (key.includes(query) || item.zh.includes(query)) {
+          const cardHtml = `
+            <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-2 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between">
+                  <h3 class="font-bold text-lg text-slate-900 dark:text-white capitalize">${key}</h3>
+                  <button onclick="speakWord('${key}')" class="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 hover:bg-blue-100 transition flex items-center justify-center">
+                    <i class="fa-solid fa-volume-high text-xs"></i>
+                  </button>
+                </div>
+                <div class="text-xs text-slate-400 font-mono mb-1">${item.pos} ${item.ipa}</div>
+                <div class="text-sm font-bold text-blue-600 dark:text-blue-400">${item.zh}</div>
+              </div>
+              <p class="text-xs text-slate-500 dark:text-slate-400 italic bg-slate-50 dark:bg-slate-700/40 p-2 rounded-lg border border-slate-100 dark:border-slate-600">
+                "${item.ex}"
+              </p>
+            </div>
+          `;
+          grid.innerHTML += cardHtml;
+        }
+      });
+    }
+
+    // Flashcard Modal Logic
+    let cardKeys = [];
+    let currentCardIdx = 0;
+    let isCardFlipped = false;
+
+    function openFlashcardModal() {
+      cardKeys = Object.keys(dictionary);
+      currentCardIdx = 0;
+      isCardFlipped = false;
+      updateFlashcardView();
+      document.getElementById('flashcard-modal').classList.remove('hidden');
+    }
+
+    function closeFlashcardModal() {
+      document.getElementById('flashcard-modal').classList.add('hidden');
+    }
+
+    function updateFlashcardView() {
+      const key = cardKeys[currentCardIdx];
+      const data = dictionary[key];
+
+      document.getElementById('card-index-text').innerText = `${currentCardIdx + 1} / ${cardKeys.length}`;
+      document.getElementById('card-word').innerText = key;
+      document.getElementById('card-pos-phonetic').innerText = `${data.pos} ${data.ipa}`;
+      document.getElementById('card-zh').innerText = data.zh;
+      document.getElementById('card-example').innerText = `"${data.ex}"`;
+
+      isCardFlipped = false;
+      document.getElementById('card-front').classList.remove('hidden');
+      document.getElementById('card-back').classList.add('hidden');
+    }
+
+    function flipCard() {
+      isCardFlipped = !isCardFlipped;
+      if (isCardFlipped) {
+        document.getElementById('card-front').classList.add('hidden');
+        document.getElementById('card-back').classList.remove('hidden');
+      } else {
+        document.getElementById('card-front').classList.remove('hidden');
+        document.getElementById('card-back').classList.add('hidden');
+      }
+    }
+
+    function nextCard() {
+      if (currentCardIdx < cardKeys.length - 1) {
+        currentCardIdx++;
+        updateFlashcardView();
+      }
+    }
+
+    function prevCard() {
+      if (currentCardIdx > 0) {
+        currentCardIdx--;
+        updateFlashcardView();
+      }
+    }
+
+    function speakCardWord() {
+      speakWord(cardKeys[currentCardIdx]);
+    }
+
+
+    /* ==========================================================================
+       6. QUIZ SYSTEM LOGIC
+       ========================================================================== */
+    function escHtml(t) {
+      return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // "(D)" / "D" / "d" -> "D"
+    function normLetter(t) {
+      return String(t || '').replace(/[()\s]/g, '').toUpperCase();
+    }
+
+    // 轉小寫、移除標點與多餘空白，用於填空題比對
+    function normText(t) {
+      return String(t || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+    }
+
+    const BLANK_ANSWERS = { a: 'landing', b: 'pilot', c: 'released' };
+
+    function renderQuizQuestions() {
+      const listContainer = document.getElementById('quiz-questions-list');
+      let html = '';
+
+      quizData.forEach((q) => {
+        let inputHtml = '';
+        if (q.type === 'text') {
+          inputHtml = `
+            <div class="mt-2">
+              <input type="text" id="quiz-input-${q.id}" placeholder="請從文章中抄寫完整句子..." class="w-full bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs rounded-lg px-3 py-2 border border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>`;
+        } else if (q.type === 'blanks') {
+          inputHtml = `
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2">
+              ${['a', 'b', 'c'].map(k => `
+                <label class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+                  <span class="font-bold text-blue-600 dark:text-blue-400">${k}.</span>
+                  <input type="text" id="quiz-input-${q.id}-${k}" class="flex-1 min-w-0 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs rounded-lg px-3 py-2 border border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </label>`).join('')}
+            </div>`;
+        } else {
+          const cols = q.options.length > 5
+            ? 'grid-cols-2 sm:grid-cols-5'
+            : (q.options.some(o => o.length > 40) ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2');
+          inputHtml = `
+            <div class="grid ${cols} gap-2 mt-2">
+              ${q.options.map(opt => {
+                const letter = normLetter(opt.substring(0, 3));
+                return `
+                <label class="flex items-start space-x-2 bg-slate-50 dark:bg-slate-700/50 p-2.5 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer text-xs hover:bg-blue-50 dark:hover:bg-slate-700 transition">
+                  <input type="radio" name="quiz-q-${q.id}" value="${letter}" class="mt-0.5 text-blue-600">
+                  <span class="text-slate-700 dark:text-slate-200">${escHtml(opt)}</span>
+                </label>`;
+              }).join('')}
+            </div>`;
+        }
+
+        html += `
+          <div id="quiz-card-${q.id}" class="bg-white dark:bg-slate-800 p-4 md:p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-2">
+            <div class="flex items-center justify-between text-xs text-blue-600 dark:text-blue-400 font-bold">
+              <span>${q.section}</span>
+              <span>題號 #${q.id}</span>
+            </div>
+            <p class="text-sm font-semibold text-slate-800 dark:text-slate-100">${escHtml(q.text)}</p>
+            ${inputHtml}
+            <div id="quiz-feedback-${q.id}" class="hidden pt-2 border-t border-slate-100 dark:border-slate-700 text-xs space-y-1"></div>
+          </div>`;
+      });
+
+      listContainer.innerHTML = html;
+    }
+
+    // 回傳 { answered, correct, userShown, answerShown }
+    function gradeQuestion(q) {
+      if (q.type === 'text') {
+        const raw = (document.getElementById(`quiz-input-${q.id}`) || {}).value || '';
+        const n = normText(raw);
+        const correct = n.includes('travel and work at the same time') && n.includes('cost');
+        return { answered: n !== '', correct, userShown: raw.trim(), answerShown: q.answer };
+      }
+      if (q.type === 'blanks') {
+        const vals = {};
+        ['a', 'b', 'c'].forEach(k => {
+          vals[k] = ((document.getElementById(`quiz-input-${q.id}-${k}`) || {}).value || '').trim();
+        });
+        const answered = Object.values(vals).some(v => v !== '');
+        const correct = ['a', 'b', 'c'].every(k => normText(vals[k]) === BLANK_ANSWERS[k]);
+        const userShown = `a. ${vals.a || '—'}, b. ${vals.b || '—'}, c. ${vals.c || '—'}`;
+        return { answered, correct, userShown, answerShown: q.answer };
+      }
+      const selected = document.querySelector(`input[name="quiz-q-${q.id}"]:checked`);
+      const user = selected ? normLetter(selected.value) : '';
+      const right = normLetter(q.answer);
+      return {
+        answered: user !== '',
+        correct: user !== '' && user === right,
+        userShown: user ? `(${user})` : '',
+        answerShown: `(${right})`
+      };
+    }
+
+    function submitQuiz() {
+      let correctCount = 0;
+      let unanswered = 0;
+
+      quizData.forEach(q => {
+        const res = gradeQuestion(q);
+        const feedbackEl = document.getElementById(`quiz-feedback-${q.id}`);
+        const cardEl = document.getElementById(`quiz-card-${q.id}`);
+        feedbackEl.classList.remove('hidden');
+
+        if (res.correct) {
+          correctCount++;
+          cardEl.className = "bg-emerald-50/60 dark:bg-emerald-900/20 p-4 md:p-5 rounded-xl border border-emerald-300 dark:border-emerald-700 shadow-sm space-y-2";
+          feedbackEl.innerHTML = `
+            <div class="text-emerald-700 dark:text-emerald-400 font-bold flex items-center gap-1.5">
+              <i class="fa-solid fa-circle-check"></i> 回答正確！
+            </div>
+            <div class="text-slate-600 dark:text-slate-300"><b>解析：</b> ${q.explanation}</div>`;
+        } else {
+          if (!res.answered) unanswered++;
+          cardEl.className = "bg-rose-50/60 dark:bg-rose-900/20 p-4 md:p-5 rounded-xl border border-rose-300 dark:border-rose-700 shadow-sm space-y-2";
+          feedbackEl.innerHTML = `
+            <div class="text-rose-700 dark:text-rose-400 font-bold flex items-center gap-1.5">
+              <i class="fa-solid fa-circle-xmark"></i>
+              ${res.answered ? '回答錯誤' : '尚未作答'}
+              (正確答案: <span class="underline">${escHtml(res.answerShown)}</span>)
+            </div>
+            ${res.answered ? `<div class="text-slate-500 dark:text-slate-400">你的答案：${escHtml(res.userShown)}</div>` : ''}
+            <div class="text-slate-600 dark:text-slate-300"><b>詳解：</b> ${q.explanation}</div>`;
+        }
+      });
+
+      const total = quizData.length;
+      const pct = Math.round((correctCount / total) * 100);
+      document.getElementById('quiz-score-text').innerText = `${correctCount} / ${total} (${pct}%)`;
+      const msg = pct >= 90 ? '太棒了！幾乎全對。'
+                : pct >= 70 ? '不錯喔！看看下方錯題的詳解。'
+                : '繼續加油！下方提供完整解析與錯題複習。';
+      document.getElementById('quiz-score-msg').innerText =
+        msg + (unanswered ? `（有 ${unanswered} 題尚未作答）` : '');
+      const banner = document.getElementById('quiz-score-banner');
+      banner.classList.remove('hidden');
+      banner.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function resetQuiz() {
+      renderQuizQuestions();
+      document.getElementById('quiz-score-banner').classList.add('hidden');
+    }
+
+
+    /* ==========================================================================
+       7. TAB & THEME NAVIGATION
+       ========================================================================== */
+    function switchTab(tabName) {
+      // Hide all tabs
+      ['passages', 'wordbank', 'quiz', 'settings'].forEach(t => {
+        document.getElementById(`tab-${t}`).classList.add('hidden');
+
+        // desktop nav button
+        const btn = document.getElementById(`tab-btn-${t}`);
+        if (btn) {
+          btn.className = "nav-tab py-2.5 px-4 text-sm font-semibold border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 flex items-center space-x-2 whitespace-nowrap";
+        }
+
+        // mobile nav button
+        const mobBtn = document.getElementById(`mob-btn-${t}`);
+        if (mobBtn) {
+          mobBtn.className = "flex flex-col items-center text-slate-500 dark:text-slate-400 text-xs font-medium";
+        }
+      });
+
+      // Show target tab
+      document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+
+      // Highlight target button
+      const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+      if (activeBtn) {
+        activeBtn.className = "nav-tab py-2.5 px-4 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 flex items-center space-x-2 whitespace-nowrap";
+      }
+      const activeMobBtn = document.getElementById(`mob-btn-${tabName}`);
+      if (activeMobBtn) {
+        activeMobBtn.className = "flex flex-col items-center text-blue-600 dark:text-blue-400 text-xs font-medium";
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Dark / Light Theme Toggle
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    themeToggleBtn.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+      const isDark = document.documentElement.classList.contains('dark');
+      localStorage.setItem('pwa-theme', isDark ? 'dark' : 'light');
+    });
+
+    if (localStorage.getItem('pwa-theme') === 'dark' || (!('pwa-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+
+    function testSpeechVoice() {
+      speakWord("Welcome to Unit 5 English Learning PWA application.");
+    }
+
+
+    /* ==========================================================================
+       8. DYNAMIC PWA MANIFEST & SERVICE WORKER INJECTION
+       ========================================================================== */
+    function initPWA() {
+      // 1. Service Worker（實體檔案 sw.js；需透過 https 或 localhost 提供）
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').then((reg) => {
+          // 已有新版在等待 → 顯示更新提示
+          if (reg.waiting && navigator.serviceWorker.controller) showUpdateToast(reg.waiting);
+          reg.addEventListener('updatefound', () => {
+            const nw = reg.installing;
+            if (!nw) return;
+            nw.addEventListener('statechange', () => {
+              if (nw.state === 'installed' && navigator.serviceWorker.controller) showUpdateToast(nw);
+            });
+          });
+          // 回到 App 時檢查更新
+          document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') reg.update().catch(() => {});
+          });
+        }).catch((err) => console.warn('Service worker 註冊失敗：', err));
+
+        let reloading = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (reloading) return;
+          reloading = true;
+          location.reload();
+        });
+      }
+
+      // 2. Install Prompt (Chrome / Edge / Android)
+      let deferredPrompt;
+      const installBtn = document.getElementById('pwa-install-btn');
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        if (installBtn && !isStandalone()) installBtn.classList.remove('hidden');
+      });
+
+      if (installBtn) {
+        installBtn.addEventListener('click', async () => {
+          if (!deferredPrompt) return;
+          deferredPrompt.prompt();
+          await deferredPrompt.userChoice;
+          installBtn.classList.add('hidden');
+          deferredPrompt = null;
+        });
+      }
+      window.addEventListener('appinstalled', () => {
+        if (installBtn) installBtn.classList.add('hidden');
+        deferredPrompt = null;
+      });
+
+      // 3. iOS Safari 沒有 beforeinstallprompt，改顯示手動安裝提示
+      const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+                    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      if (isIOS && !isStandalone() && !localStorage.getItem('pwa-ios-hint-dismissed')) {
+        document.getElementById('ios-install-hint').classList.remove('hidden');
+      }
+
+      // 4. 離線狀態
+      updateOnlineStatus();
+      window.addEventListener('online', updateOnlineStatus);
+      window.addEventListener('offline', updateOnlineStatus);
+    }
+
+    function isStandalone() {
+      return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    }
+
+    function updateOnlineStatus() {
+      const badge = document.getElementById('offline-badge');
+      if (badge) badge.classList.toggle('hidden', navigator.onLine);
+    }
+
+    function showUpdateToast(worker) {
+      const toast = document.getElementById('update-toast');
+      toast.classList.remove('hidden');
+      document.getElementById('update-btn').onclick = () => {
+        worker.postMessage({ type: 'SKIP_WAITING' });
+        toast.classList.add('hidden');
+      };
+    }
+
+    function dismissIOSHint() {
+      document.getElementById('ios-install-hint').classList.add('hidden');
+      try { localStorage.setItem('pwa-ios-hint-dismissed', '1'); } catch (_) {}
+    }
+
+
+    /* ==========================================================================
+       9. INIT ON WINDOW LOAD
+       ========================================================================== */
+    window.onload = function() {
+      makePassagesInteractive();
+      renderWordBank();
+      renderQuizQuestions();
+      initPWA();
+
+      // Detect available TTS Voices
+      if (synth) {
+        synth.onvoiceschanged = () => {
+          const voices = synth.getVoices();
+          const enVoice = voices.find(v => v.lang.includes('en'));
+          const voiceLabel = document.getElementById('speech-voice-name');
+          if (voiceLabel && enVoice) {
+            voiceLabel.innerText = `${enVoice.name} (${enVoice.lang})`;
+          }
+        };
+      }
+
+      // Close dictionary modal when clicking outside content
+      document.getElementById('dict-modal').addEventListener('click', (e) => {
+        if (e.target.id === 'dict-modal') {
+          closeDictModal();
+        }
+      });
+    };
+  </script>
+</body>
+</html>

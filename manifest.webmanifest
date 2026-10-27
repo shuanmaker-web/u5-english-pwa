@@ -1,0 +1,19 @@
+{
+  "name": "Unit 5 英文閱讀與單字學習",
+  "short_name": "U5 English",
+  "description": "Unit 5 英文閱讀、文意選填、閱讀測驗與 20-25 單字庫互動學習",
+  "id": "./",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "lang": "zh-TW",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "categories": ["education"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
