@@ -100,6 +100,11 @@
     ::-webkit-scrollbar-track {
       background: transparent;
     }
+
+    /* Answer tab: self-test mode */
+    #tab-answers.ans-hidden .ans-body { filter: blur(7px); transition: filter .2s; user-select: none; }
+    #tab-answers.ans-hidden .ans-card { cursor: pointer; }
+    #tab-answers.ans-hidden .ans-card.revealed .ans-body { filter: none; user-select: auto; }
     ::-webkit-scrollbar-thumb {
       background: #cbd5e1;
       border-radius: 3px;
@@ -156,6 +161,10 @@
       <button onclick="switchTab('quiz')" id="tab-btn-quiz" class="nav-tab py-2.5 px-4 text-sm font-semibold border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 flex items-center space-x-2 whitespace-nowrap">
         <i class="fa-solid fa-pen-to-square"></i>
         <span>互動測驗 & 詳解</span>
+      </button>
+      <button onclick="switchTab('answers')" id="tab-btn-answers" class="nav-tab py-2.5 px-4 text-sm font-semibold border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 flex items-center space-x-2 whitespace-nowrap">
+        <i class="fa-solid fa-key"></i>
+        <span>答案 & 解析</span>
       </button>
       <button onclick="switchTab('settings')" id="tab-btn-settings" class="nav-tab py-2.5 px-4 text-sm font-semibold border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 flex items-center space-x-2 whitespace-nowrap">
         <i class="fa-solid fa-sliders"></i>
@@ -464,6 +473,31 @@
       </div>
     </div>
 
+    <!-- TAB: ANSWER KEY -->
+    <div id="tab-answers" class="hidden space-y-6">
+      <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <i class="fa-solid fa-key text-blue-600"></i> 答案 &amp; 解析（第 1–27 題）
+          </h2>
+          <button onclick="toggleAnswerHide(this)" class="text-xs font-semibold bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+            <i class="fa-solid fa-eye-slash"></i><span>先遮住答案（自我測試）</span>
+          </button>
+        </div>
+        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+          答案由 AI 對照文章逐題解出，並附上理由；第 IV、V 大題的題目為本 App 內的版本。建議和老師或課本的解答再核對一次。
+        </p>
+      </div>
+
+      <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+        <div class="text-sm font-bold text-slate-800 dark:text-slate-100 mb-3">答案速查（點一下跳到解析）</div>
+        <div id="answer-chips"></div>
+        <div class="text-[11px] text-slate-400 mt-1">✎ = 需自行填寫的題目（第 24、27 題），答案見下方解析。</div>
+      </div>
+
+      <div id="answer-list" class="space-y-6"></div>
+    </div>
+
     <!-- TAB 4: SETTINGS & PWA INFO -->
     <div id="tab-settings" class="hidden space-y-6">
       <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 space-y-4">
@@ -519,6 +553,10 @@
     <button onclick="switchTab('quiz')" id="mob-btn-quiz" class="flex flex-col items-center text-slate-500 dark:text-slate-400 text-xs font-medium">
       <i class="fa-solid fa-pen-to-square text-base mb-0.5"></i>
       <span>測驗</span>
+    </button>
+    <button onclick="switchTab('answers')" id="mob-btn-answers" class="flex flex-col items-center text-slate-500 dark:text-slate-400 text-xs font-medium">
+      <i class="fa-solid fa-key text-base mb-0.5"></i>
+      <span>答案</span>
     </button>
     <button onclick="switchTab('settings')" id="mob-btn-settings" class="flex flex-col items-center text-slate-500 dark:text-slate-400 text-xs font-medium">
       <i class="fa-solid fa-sliders text-base mb-0.5"></i>
@@ -1258,6 +1296,20 @@ zoo|n.|動物園`;
       { id: 27, section: "V. 混合題", text: "27. Fill in blanks: a. [landing], b. [pilot], c. [released]", type: "blanks", options: [], answer: "a. landing, b. pilot, c. released", explanation: "a. landing site; b. pilot; c. released to safer environments." }
     ];
 
+    /* ==========================================================================
+       2b. ANSWER KEY - 答案與解析（測驗批改也使用這份資料，確保兩邊一致）
+       ========================================================================== */
+    const ANSWER_KEY = [{"title": "I. 綜合測驗", "sub": "Cloze Test · 第 1–5 題", "items": [{"id": 1, "ans": "(D)", "html": "<b>句意</b>：商店設立特別方案來「獎勵」顧客的忠誠度。<br><b>解析</b>：that 引導的子句缺動詞，後接 customer loyalty。reward 獎勵 最合理；neglect 忽視、settle 解決、declare 宣布 都不通。"}, {"id": 2, "ans": "(C)", "html": "<b>句意</b>：他們接著可以「兌換」這些獎勵，換取免費商品或折扣。<br><b>解析</b>：turn in 在此指把點數／貼紙「交出、繳回」來換東西。show up 出現、take off 起飛／脫下、stick to 堅持，都不符語意。"}, {"id": 3, "ans": "(B)", "html": "<b>句意</b>：獲得的點數可以被兌換成健康檢查，或轉換成台北動物園的折扣。<br><b>解析</b>：Points 和 exchange 是被動關係，can 後接 <b>be + p.p.</b>。後面的 converted into 也是被動，兩者平行。"}, {"id": 4, "ans": "(A)", "html": "<b>句意</b>：多虧人們想賺取免費東西的慾望，獎勵方案能做的不只是讓顧客回到店裡。<br><b>解析</b>：Thanks to 由於、多虧。In order to 後面要接原形動詞；Regardless of 不管；Aside from 除了…之外，語意都不對。"}, {"id": 5, "ans": "(B)", "html": "<b>句意</b>：獎勵方案可以用來「促進」健康習慣並激勵人們。<br><b>解析</b>：promote 促進、推廣。forbid 禁止、criticize 批評、conceal 隱藏，與 healthy habits 搭配不合理。"}]}, {"title": "II. 文意選填", "sub": "Algae · 第 6–15 題", "items": [{"id": 6, "ans": "(J)", "html": "<b>句意</b>：海藻可做成輕巧、<b>堅固</b>、又比傳統鞋墊更舒服的鞋墊。<br><b>解析</b>：lightweight, (6), and more comfortable 三個形容詞並列，sturdy 堅固的 最合適。"}, {"id": 7, "ans": "(B)", "html": "<b>句意</b>：它可完全生物分解，不會<b>污染</b>環境。<br><b>解析</b>：won't 後接原形動詞，pollute 污染。"}, {"id": 8, "ans": "(F)", "html": "<b>句意</b>：以海藻為材料的包裝由 Evoware 公司<b>率先開發</b>。<br><b>解析</b>：has been + p.p. 被動，pioneered（pioneer 開創）符合。combined 也是 p.p. 但語意不合。"}, {"id": 9, "ans": "(D)", "html": "<b>句意</b>：用海藻做包裝有雙重<b>好處</b>：減少塑膠垃圾，又能提供可食用的東西。<br><b>解析</b>：the dual (9) 需要名詞，benefit 好處；後面兩項就是兩個好處。"}, {"id": 10, "ans": "(A)", "html": "<b>句意</b>：海藻雖有許多用途，但一個<b>根本的</b>好處是它能淨化環境。<br><b>解析</b>：空格修飾名詞 benefit，需要形容詞；fundamental 基本的、根本的 語意最順。"}, {"id": 11, "ans": "(C)", "html": "<b>句意</b>：海藻能清除受污染水中的<b>有毒</b>化學物質。<br><b>解析</b>：toxic chemicals 有毒化學物質，是固定搭配。"}, {"id": 12, "ans": "(E)", "html": "<b>句意</b>：農夫發現餵牛吃海藻，能大幅<b>減少</b>牠們的甲烷排放。<br><b>解析</b>：主詞是動名詞片語 feeding algae to cows（視為單數），動詞用第三人稱單數 reduces。"}, {"id": 13, "ans": "(G)", "html": "<b>句意</b>：甲烷對環境的傷害，比全世界所有汽車、卡車和飛機<b>加起來</b>還大。<br><b>解析</b>：…all the world's cars, trucks, and airplanes combined 「全部加總」，combined 放在名詞後作後位修飾。"}, {"id": 14, "ans": "(H)", "html": "<b>句意</b>：整體來看，海藻的許多<b>應用</b>使它們比大多數人以為的更重要。<br><b>解析</b>：many 後接複數名詞，applications 應用。"}, {"id": 15, "ans": "(I)", "html": "<b>句意</b>：這些生物外表不起眼，但<b>本質上</b>非常有用。<br><b>解析</b>：in essence 本質上、實質上，是固定片語。"}]}, {"title": "III. 篇章結構", "sub": "Inventions · 第 16–19 題", "items": [{"id": 16, "ans": "(C)", "html": "<b>句意</b>：「但你知道這項發明是怎麼來的嗎？」<br><b>解析</b>：前一句講到想到割傷就想到 Band-Aid，後一句開始說 Dickson 注意到太太常受傷，是在交代由來，所以用 (C) 承接。(E) 說「意外發明」，但 Band-Aid 是 Dickson 為了幫太太而發明，並非意外，所以不選。"}, {"id": 17, "ans": "(A)", "html": "<b>句意</b>：「如果她用小刷子把薄薄的白漆塗在作品上，就能遮蓋錯誤。」<br><b>解析</b>：前一句說她想到畫家修牆的做法也能用在紙上，這句具體說明做法；後一句 This handy invention 指的就是這個方法。"}, {"id": 18, "ans": "(E)", "html": "<b>句意</b>：「不過，有些時候，發明是意外產生的。」<br><b>解析</b>：這段講茶包：Sullivan 只是想把茶葉裝進絲袋當樣品，客人誤把整袋放進熱水，茶包才誕生，屬於意外發明。(C) 的 this invention 沒有前面的內容可指，放在段首不合理。"}, {"id": 19, "ans": "(B)", "html": "<b>句意</b>：「我們可以期待未來有更多有創意的解決辦法。」<br><b>解析</b>：前一句說未來的發明家會繼續想出新點子，這句順勢展望未來；後一句再用 If it weren't for…（要不是有偉大的發明…）收尾。(D) 的 However 轉折與正向結尾不合，是干擾選項。"}]}, {"title": "IV. 閱讀測驗", "sub": "Peculiar Museums · 第 20–23 題", "items": [{"id": 20, "ans": "(D)", "html": "<b>解析</b>：文章從一般人想到的博物館，帶到拉麵、Bad Art、鹽罐胡椒罐、酷刑、割草機、馬桶等各種怪博物館，主旨是「世界上有許多奇特的博物館」。(A) 與原文 mention any object, and it probably has its own museum 相反；(B) 只是其中一個例子；(C) 文章結尾反而叫你別去傳統博物館。"}, {"id": 21, "ans": "(C)", "html": "<b>解析</b>：題目問「何者不正確」。Museum of Bad Art 展出的是 <b>the worst art imaginable</b>（最糟糕的藝術），不是最好的畫，所以 (C) 錯。(A) 開頭提到有外星太空船的博物館；(B) 拉麵博物館有一層樓像 1958 年的東京；(D) 鹽罐胡椒罐博物館源自一位女士的著迷，都正確。"}, {"id": 22, "ans": "(C)", "html": "<b>解析</b>：This museum assembles, preserves, and displays… 收集、<b>保存</b>、展示。preserve 保存、保護，與 Protects 最接近。Remembers 記得、Destroys 摧毀、Forgets 忘記 都不符。"}, {"id": 23, "ans": "(A)", "html": "<b>解析</b>：文章最後說 You're sure to have a lot of fun!，可推論這些博物館因為獨特有趣而值得一去。(B) 太蠢不值得、(C) 很貴、(D) 美國比歐洲多，原文都沒有支持。"}]}, {"title": "V. 混合題", "sub": "Working Holidays · 第 24–27 題", "items": [{"id": 24, "ans": "On a working holiday, you can travel and work at the same time, therefore solving the problem of cost.", "html": "<b>解析</b>：題目問打工度假能解決什麼問題，答案就在第一段：旅行與工作同時進行，解決了<b>費用（cost）</b>問題。抄寫時需整句抄下。"}, {"id": 25, "ans": "(B)", "html": "<b>解析</b>：Andrea 說剛開始很難記住外語的菜單用語和咖啡配方（had a hard time remembering…），後來靠練習克服了困難（overcame the difficulty）。"}, {"id": 26, "ans": "(A)", "html": "<b>解析</b>：Chris 是熱氣球追逐者，工作要用 maps 和 pilot 提供的資訊找出降落地點，所以地圖／導航功能對他最有用。"}, {"id": 27, "ans": "a. landing, b. pilot, c. released", "html": "<b>解析</b>：a. Chris 要找出完美的 <b>landing</b> spot（降落點）；b. 資訊來自熱氣球的 <b>pilot</b>（駕駛員）；c. Leonard 捕捉無尾熊後，政府會把牠們 <b>released</b>（野放）到更安全的地區。"}]}];
+    (function syncQuizWithKey() {
+      const byId = {};
+      ANSWER_KEY.forEach(sec => sec.items.forEach(it => { byId[it.id] = it; }));
+      quizData.forEach(q => {
+        const k = byId[q.id];
+        if (k) { q.answer = k.ans; q.explanation = k.html; }
+      });
+    })();
+
+
 
     /* ==========================================================================
        3. INTERACTIVE WORD-TABBING / SPEECH ENGINE LOGIC
@@ -1656,6 +1708,61 @@ zoo|n.|動物園`;
       };
     }
 
+
+    function renderAnswerKey() {
+      const chips = document.getElementById('answer-chips');
+      const list = document.getElementById('answer-list');
+      if (!chips || !list) return;
+      let chipHtml = '';
+      let listHtml = '';
+      ANSWER_KEY.forEach(sec => {
+        chipHtml += `<div class="mb-3"><div class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">${sec.title}</div><div class="flex flex-wrap gap-1.5">`;
+        listHtml += `<div class="space-y-3"><div class="flex items-baseline gap-2 pt-2"><h3 class="text-base font-bold text-slate-900 dark:text-white">${sec.title}</h3><span class="text-xs text-slate-400">${sec.sub}</span></div>`;
+        sec.items.forEach(it => {
+          const isLetter = /^\([A-J]\)$/.test(it.ans);
+          const short = isLetter ? it.ans.replace(/[()]/g, '') : '✎';
+          chipHtml += `<button onclick="jumpToAnswer(${it.id})" class="ans-chip min-w-[3.1rem] px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/60 text-xs text-slate-600 dark:text-slate-300 hover:border-blue-400 transition"><span class="text-slate-400">${it.id}</span> <b class="ans-body text-blue-600 dark:text-blue-400">${short}</b></button>`;
+          const ansShown = isLetter ? it.ans : escHtml(it.ans);
+          listHtml += `
+            <div id="ans-card-${it.id}" onclick="revealAnswer(${it.id})" class="ans-card bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-2">
+              <div class="flex items-start gap-3">
+                <span class="shrink-0 text-xs font-bold text-slate-400 pt-1">#${it.id}</span>
+                <div class="flex-1 min-w-0 space-y-2">
+                  <div class="ans-body"><span class="inline-block bg-blue-600 text-white text-sm font-bold px-2.5 py-0.5 rounded-md break-words">${ansShown}</span></div>
+                  <div class="ans-body text-sm leading-relaxed text-slate-700 dark:text-slate-300">${it.html}</div>
+                </div>
+              </div>
+            </div>`;
+        });
+        chipHtml += '</div></div>';
+        listHtml += '</div>';
+      });
+      chips.innerHTML = chipHtml;
+      list.innerHTML = listHtml;
+    }
+
+    function toggleAnswerHide(btn) {
+      const root = document.getElementById('tab-answers');
+      const hidden = root.classList.toggle('ans-hidden');
+      root.querySelectorAll('.ans-card.revealed').forEach(c => c.classList.remove('revealed'));
+      btn.innerHTML = hidden
+        ? '<i class="fa-solid fa-eye"></i><span>顯示全部答案</span>'
+        : '<i class="fa-solid fa-eye-slash"></i><span>先遮住答案（自我測試）</span>';
+    }
+
+    function revealAnswer(id) {
+      const card = document.getElementById('ans-card-' + id);
+      if (card) card.classList.add('revealed');
+    }
+
+    function jumpToAnswer(id) {
+      const card = document.getElementById('ans-card-' + id);
+      if (!card) return;
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      card.classList.add('ring-2', 'ring-blue-400');
+      setTimeout(() => card.classList.remove('ring-2', 'ring-blue-400'), 1600);
+    }
+
     function submitQuiz() {
       let correctCount = 0;
       let unanswered = 0;
@@ -1712,7 +1819,7 @@ zoo|n.|動物園`;
        ========================================================================== */
     function switchTab(tabName) {
       // Hide all tabs
-      ['passages', 'wordbank', 'quiz', 'settings'].forEach(t => {
+      ['passages', 'wordbank', 'quiz', 'answers', 'settings'].forEach(t => {
         document.getElementById(`tab-${t}`).classList.add('hidden');
 
         // desktop nav button
@@ -1860,6 +1967,7 @@ zoo|n.|動物園`;
       makePassagesInteractive();
       renderWordBank();
       renderQuizQuestions();
+      renderAnswerKey();
       initPWA();
 
       // Detect available TTS Voices

@@ -1,7 +1,7 @@
 /* Service Worker — Unit 5 English PWA
  * 每次更新 app 內容時，請把 VERSION 加 1，使用者端就會收到更新。
  */
-const VERSION = 'v5';
+const VERSION = 'v6';
 const PRECACHE = `u5-precache-${VERSION}`;
 const RUNTIME = `u5-runtime-${VERSION}`;
 
