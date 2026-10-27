@@ -560,7 +560,7 @@
         </div>
 
         <div>
-          <div class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">例句 / 文脈 note</div>
+          <div id="modal-example-label" class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">文章原句</div>
           <p id="modal-example" class="text-sm text-slate-600 dark:text-slate-300 italic bg-slate-50 dark:bg-slate-700/50 p-3 rounded-xl border border-slate-200 dark:border-slate-600">
             Example sentence here.
           </p>
@@ -698,6 +698,605 @@
     };
 
     /* ==========================================================================
+       1b. PASSAGE DICTIONARY - 文章中所有字詞的中文（不會出現在單字庫 / Flashcards）
+       格式：word|詞性|中文
+       ========================================================================== */
+    const PASSAGE_DICT_RAW = `about|prep./adv.|關於；大約
+accidentally|adv.|意外地；偶然地
+achieve|v.|達成；實現
+activities|n.|活動
+actually|adv.|實際上；其實
+addition|n.|增加；附加（in addition：此外）
+aid|n.|幫助；援助（Band-Aid：OK繃）
+aids|n.|輔助；援助
+aims|v.|旨在；目標是
+air|n.|空氣；空中
+airplanes|n.|飛機
+alien|adj./n.|外星的；外星人
+all|det./pron.|全部；所有
+alps|n.|阿爾卑斯山
+also|adv.|也；而且
+although|conj.|雖然
+always|adv.|總是
+american|adj.|美國的
+an|art.|一個
+and|conj.|和；而且
+another|det./pron.|另一個
+answer|n.|答案；解決辦法
+antique|adj./n.|古董的；古董
+any|det.|任何
+appearance|n.|外表；外觀
+appetite|n.|胃口；食慾
+apply|v.|塗抹；貼上；應用
+are|v.|是（be 的複數現在式）
+areas|n.|地區；領域
+art|n.|藝術
+artifacts|n.|人工製品；文物
+as|conj./prep.|如同；作為；因為
+assembles|v.|收集；組裝
+assisting|v.|協助
+at|prep.|在（某處／某時）
+atmosphere|n.|大氣；氛圍
+australia|n.|澳洲
+back|adv./n.|回來；後面
+bad|adj.|壞的；差的
+bag|n.|袋子
+bags|n.|袋子
+balloon|n.|氣球
+band|n.|帶子；樂團（Band-Aid：OK繃）
+bandage|n./v.|繃帶；包紮
+bandages|n.|繃帶
+barista|n.|咖啡師
+based|adj.|以…為基礎的
+be|v.|是；成為
+beauty|n.|美；美景
+became|v.|變成（become 的過去式）
+been|v.|是（be 的過去分詞）
+before|prep./conj.|在…之前
+began|v.|開始（begin 的過去式）
+benefit|n./v.|好處；有益於
+best|adj./adv.|最好的
+bette|n.|貝蒂（人名）
+biological|adj.|生物的
+books|n.|書
+born|v.|出生；誕生
+bottle|n.|瓶子
+bowl|n.|碗
+bowls|n.|碗
+brewing|v.|沖泡；釀造
+bring|v.|帶來
+burned|v.|燒傷；燃燒
+businesses|n.|企業；商店
+but|conj.|但是
+buy|v.|買
+by|prep.|被；藉由；在…旁
+café|n.|咖啡廳
+caf|n.|咖啡廳（café）
+came|v.|來（come 的過去式）
+can|modal v.|能夠；可以
+capability|n.|能力
+capturing|v.|捕捉
+carbon|n.|碳
+cards|n.|卡片
+carrots|n.|紅蘿蔔
+cars|n.|汽車
+case|n.|情況；案例
+catcher|n.|捕捉者
+caught|v.|捕捉（catch 的過去式／過去分詞）
+chaser|n.|追逐者
+cheap|adj.|便宜的
+check|v./n.|檢查；查看
+checkups|n.|健康檢查
+chemicals|n.|化學物質
+children|n.|孩子們
+chilled|adj.|冷藏的；冰涼的
+choose|v.|選擇
+chopsticks|n.|筷子
+city|n.|城市
+close|v./adj.|關閉；接近的
+coffee|n.|咖啡
+collar|n.|衣領；項圈
+collections|n.|收藏品
+collectively|adv.|總體而言；集體地
+come|v.|來
+comes|v.|來
+comfortable|adj.|舒適的
+commonplace|adj.|平常的；普遍的
+company|n.|公司
+conceivable|adj.|可想像的
+conceive|v.|構想；想出
+cones|n.|圓錐體；甜筒
+confidence|n.|信心
+consider|v.|考慮；認為
+contains|v.|包含
+continue|v.|繼續
+convention|n.|慣例；習俗
+converted|v.|轉換；兌換
+cooking|n./v.|烹飪
+correct|v./adj.|改正；正確的
+cost|n.|成本；費用
+could|modal v.|可能；能夠（can 的過去式）
+couldnt|modal v.|無法（couldn't = could not）
+cows|n.|母牛；乳牛
+cream|n.|奶油；冰淇淋
+creations|n.|作品；創作；特調飲品
+creative|adj.|有創意的
+crew|n.|工作人員；團隊
+cultivate|v.|栽培；培養
+culture|n.|文化
+currently|adv.|目前
+customary|adj.|慣常的；傳統的
+customers|n.|顧客
+cut|v.|割傷；切
+daily|adj.|每日的
+damage|n./v.|損害
+david|n.|大衛（米開朗基羅的雕像《大衛》）
+day|n.|天；日子
+decided|v.|決定
+deep|adj.|深的；深厚的
+department|n.|部門；局處
+designed|v.|設計
+desire|n.|渴望；慾望
+dickson|n.|迪克森（人名）
+die|v.|死亡
+different|adj.|不同的
+difficulty|n.|困難
+dioxide|n.|二氧化物（carbon dioxide：二氧化碳）
+directly|adv.|直接地
+discounts|n.|折扣
+discovered|v.|發現
+displays|v.|展示
+distributed|v.|分發
+do|v.|做
+does|v.|做
+dog|n.|狗
+draw|v.|畫
+dreadful|adj.|可怕的；糟透的
+dream|n.|夢；夢想
+drinking|v.|喝
+dual|adj.|雙重的
+during|prep.|在…期間
+each|det.|每一個
+earle|n.|厄爾（人名）
+earn|v.|賺得；獲得
+easily|adv.|輕易地
+easy|adj.|容易的
+embrace|v.|擁抱；欣然接受
+enjoyed|v.|享受
+entire|adj.|整個的
+environment|n.|環境
+environmental|adj.|環境的
+especially|adv.|尤其
+essays|n.|文章；短文
+europe|n.|歐洲
+even|adv.|甚至
+events|n.|活動；事件
+eventually|adv.|最終
+every|det.|每個
+evoware|n.|Evoware（公司名）
+example|n.|例子
+examples|n.|例子
+exhibits|v./n.|展出；展覽品
+expensive|adj.|昂貴的
+experience|n.|經驗；體驗
+experiences|n.|經驗；體驗
+exposure|n.|接觸；暴露
+extra|adj./adv.|額外的；格外的
+eye|n.|眼睛
+fact|n.|事實
+far|adv.|遠
+farmers|n.|農夫
+fear|n./v.|恐懼；害怕
+feeding|v.|餵食
+figure|n./v.|數字；（figure out）弄清楚
+find|v.|找到；發現
+first|adj./adv.|第一；首先
+floor|n.|樓層；地板
+following|adj.|以下的
+food|n.|食物
+for|prep.|為了；給
+foreign|adj.|外國的
+forget|v.|忘記
+four|num.|四
+free|adj.|免費的；自由的
+french|adj.|法國的
+fresh|adj.|新鮮的
+friendly|adj.|友善的
+friends|n.|朋友
+from|prep.|從
+full|adj.|充滿的
+fully|adv.|完全地
+fun|n./adj.|樂趣；有趣的
+future|n.|未來
+gained|v.|獲得
+gas|n.|氣體；瓦斯
+get|v.|得到；變得
+gift|n.|禮物
+gives|v.|給；提供
+got|v.|得到（get 的過去式）
+graham|n.|格雷厄姆（人名）
+gram|n.|公克
+great|adj.|很棒的；偉大的
+guests|n.|客人
+habits|n.|習慣
+had|v.|有（have 的過去式）
+hand|n.|手；（lend a hand）幫忙
+handy|adj.|方便的；便利的
+hard|adj./adv.|困難的；努力地
+has|v.|有
+have|v.|有
+he|pron.|他
+health|n.|健康
+healthy|adj.|健康的
+help|v./n.|幫助
+her|pron.|她的；她
+here|adv.|這裡
+herself|pron.|她自己
+his|pron.|他的
+holiday|n.|假期
+home|n.|家
+hot|adj.|熱的
+hotel|n.|旅館
+hotels|n.|旅館
+household|n.|家庭；住戶
+however|adv.|然而
+humble|adj.|謙遜的；不起眼的
+hungry|adj.|餓的
+hurt|v.|傷害；弄痛
+ice|n.|冰
+idea|n.|想法
+ideas|n.|想法
+if|conj.|如果
+imaginable|adj.|可想像的
+immediately|adv.|立刻
+important|adj.|重要的
+in|prep.|在…裡
+increase|v./n.|增加
+industry|n.|產業
+information|n.|資訊
+inside|prep./adv.|在…裡面
+instead|adv.|反而；代替
+instruments|n.|器具；儀器
+intended|v.|打算；意圖
+international|adj.|國際的
+into|prep.|進入
+invented|v.|發明
+invention|n.|發明
+inventions|n.|發明
+inventors|n.|發明家
+is|v.|是
+it|pron.|它
+items|n.|物品；項目
+its|pron.|它的
+japan|n.|日本
+japanese|adj./n.|日本的；日本人
+job|n.|工作
+join|v.|加入；參加
+just|adv.|只是；剛好
+keen|adj.|熱衷的；渴望的
+keep|v.|保持；保留
+kelp|n.|海帶；大型褐藻
+kids|n.|孩子
+known|adj.|已知的；被稱為
+koala|n.|無尾熊
+koalas|n.|無尾熊
+land|n./v.|土地；降落
+landing|n.|著陸；降落處
+landscape|n.|風景
+language|n.|語言
+last|adj.|上一個；最後的
+lawnmower|n.|割草機
+leads|v.|導致；帶領
+leave|v.|離開
+leaves|n.|葉子
+led|v.|導致；帶領（lead 的過去式）
+lend|v.|借出；給予（lend a hand：幫忙）
+library|n.|圖書館
+lightweight|adj.|輕量的
+like|prep./v.|像；喜歡
+likely|adj./adv.|很可能
+liquid|n./adj.|液體
+lives|n.|生活；生命
+logically|adv.|合乎邏輯地
+look|v.|看
+looking|v.|尋找；看
+looks|v.|看起來
+loose|adj.|散的；鬆的
+lot|n.|許多（a lot of）
+machinery|n.|機器
+made|v.|製造；使（make 的過去式）
+make|v.|製造；使
+making|v.|製造
+many|det.|許多
+maps|n.|地圖
+may|modal v.|可能；可以
+mcdonald|n.|麥當勞
+me|pron.|我（受格）
+meanwhile|adv.|同時；與此同時
+meat|n.|肉
+member|n.|成員
+mention|v.|提到
+menu|n.|菜單
+michelangelo|n.|米開朗基羅
+might|modal v.|可能
+mind|n.|心；頭腦（come to mind：浮現腦海）
+minerals|n.|礦物質
+mistakes|n.|錯誤
+modern|adj.|現代的
+money|n.|錢
+monsters|n.|怪物
+more|adj./adv.|更多；更
+most|adj./adv.|最多；大多數
+mountains|n.|山
+much|adj./adv.|很多；非常
+museum|n.|博物館
+museums|n.|博物館
+my|pron.|我的
+nantou|n.|南投
+need|v./n.|需要
+needed|v.|需要
+nesmith|n.|內史密斯（人名）
+never|adv.|從不
+new|adj.|新的
+next|adj.|下一個
+noodles|n.|麵條
+not|adv.|不
+notable|adj.|著名的；值得注意的
+noticed|v.|注意到
+now|adv.|現在
+number|n.|數量；號碼
+nutrients|n.|營養素
+object|n.|物體
+of|prep.|…的
+often|adv.|經常
+on|prep.|在…上
+one|num./pron.|一；一個
+or|conj.|或者
+order|n.|順序（in order to：為了）
+organisms|n.|生物；有機體
+organizations|n.|組織；機構
+other|adj.|其他的
+our|pron.|我們的
+out|adv.|向外；出去
+output|n.|產量；排放量
+over|prep./adv.|在…上方；超過；至於
+overcame|v.|克服（overcome 的過去式）
+own|adj.|自己的
+paint|n./v.|油漆；塗漆
+painters|n.|油漆工；畫家
+paintings|n.|畫作
+paper|n.|紙
+parts|n.|部分
+participate|v.|參與
+passion|n.|熱情；熱愛
+patient|adj.|有耐心的
+pay|v.|支付
+people|n.|人們
+pepper|n.|胡椒
+perfect|adj.|完美的
+pictures|n.|圖畫；照片
+pilot|n.|飛行員；駕駛員
+places|n.|地方
+plane|n.|飛機
+plant|n.|植物
+plastic|n.|塑膠
+points|n.|點數；分數
+polluted|adj.|被污染的
+popular|adj.|受歡迎的
+pot|n.|壺；鍋
+powder|n.|粉末
+practice|n./v.|練習
+pretty|adv./adj.|相當；漂亮的
+probably|adv.|可能；大概
+problem|n.|問題
+problems|n.|問題
+procedure|n.|程序；方法
+product|n.|產品
+program|n.|計畫；節目
+programs|n.|計畫
+projects|n.|專案；計畫
+protect|v.|保護
+protein|n.|蛋白質
+provides|v.|提供
+providing|v.|提供
+public|adj.|公共的
+purify|v.|淨化
+put|v.|放置
+putting|v.|放置
+radically|adv.|大幅地；徹底地
+ramen|n.|拉麵
+read|v.|閱讀
+realize|v.|了解；意識到
+received|v.|收到
+recipes|n.|食譜；配方
+red|adj.|紅色的
+reducing|v.|減少
+related|adj.|相關的
+release|v.|釋放
+remembering|v.|記住
+remove|v.|移除
+require|v.|需要；要求
+resolve|v.|解決
+result|n.|結果
+reward|n./v.|獎賞；獎勵
+rewards|n.|獎勵
+rid|adj.|擺脫的（get rid of：除去）
+safer|adj.|更安全的
+salt|n.|鹽
+same|adj.|相同的
+samples|n.|樣品
+save|v.|節省；拯救
+sculptures|n.|雕塑
+seaweed|n.|海藻
+secretary|n.|秘書
+see|v.|看見
+seem|v.|似乎
+seller|n.|賣家；販售者
+set|v.|設立；放置（set up：設立）
+sets|n.|組；套
+shaker|n.|搖瓶；調味罐
+shapes|n.|形狀
+sharing|v.|分享
+she|pron.|她
+shoe|n.|鞋子
+shoes|n.|鞋子
+shop|n.|商店
+shoppers|n.|購物者
+significant|adj.|重大的；顯著的
+silk|n.|絲綢
+similar|adj.|相似的
+simple|adj.|簡單的
+skeletons|n.|骷髏；骨架
+skiing|n.|滑雪
+skills|n.|技能
+small|adj.|小的
+so|adv./conj.|所以；非常
+socks|n.|襪子
+solutions|n.|解決辦法
+solve|v.|解決
+solving|v.|解決
+some|det.|一些
+something|pron.|某事；某物
+spacecraft|n.|太空船
+special|adj.|特別的
+spending|v.|花費；度過
+spent|v.|花費；度過
+spinach|n.|菠菜
+splendidly|adv.|極好地；出色地
+spot|n.|地點
+spring|v.|（spring to mind）突然浮現
+staff|n.|員工
+start|v.|開始
+started|v.|開始
+startling|adj.|驚人的
+states|n.|州；國家（United States：美國）
+stickers|n.|貼紙
+store|n.|商店
+stores|n.|商店
+story|n.|故事
+straightforward|adj.|簡單直接的
+struck|v.|突然想到；打擊（strike 的過去式）
+stuff|n.|東西
+success|n.|成功
+sullivan|n.|蘇利文（人名）
+summer|n.|夏天
+sure|adj.|確定的
+system|n.|系統；體系
+tabletop|adj./n.|桌上的
+taipei|n.|台北
+taiwan|n.|台灣
+take|v.|拿；採取
+tea|n.|茶
+tells|v.|告訴；講述
+terms|n.|術語；條件
+than|conj./prep.|比
+that|pron./conj.|那個；那
+the|art.|這個；那個（定冠詞）
+their|pron.|他們的
+them|pron.|他們（受格）
+then|adv.|然後
+there|adv.|那裡；有
+therefore|adv.|因此
+these|det.|這些
+they|pron.|他們
+things|n.|東西；事物
+think|v.|想；認為
+thirsty|adj.|口渴的
+this|det./pron.|這個
+thomas|n.|湯瑪斯（人名）
+those|det.|那些
+tickets|n.|票
+time|n.|時間；次
+toilets|n.|廁所；馬桶
+tokyo|n.|東京
+torture|n./v.|酷刑；折磨
+touch|v.|碰觸（touch up：修補潤飾）
+tourists|n.|遊客
+town|n.|城鎮
+travel|v.|旅行
+troublesome|adj.|麻煩的
+trucks|n.|卡車
+true|adj.|真實的（dream come true：美夢成真）
+truly|adv.|真正地
+turned|v.|轉變；轉
+type|n.|種類
+types|n.|種類
+typing|n./v.|打字
+undoubtedly|adv.|無疑地
+unforgettable|adj.|難忘的
+united|adj.|聯合的
+universal|adj.|普遍的；通用的
+unopened|adj.|未打開的
+up|adv.|向上
+used|v.|使用；被用來
+useful|adj.|有用的
+uses|n.|用途
+using|v.|使用
+vacations|n.|假期
+vaccines|n.|疫苗
+varied|adj.|各式各樣的
+vegetable|n.|蔬菜
+very|adv.|非常
+visit|v.|參觀；拜訪
+visitors|n.|參觀者
+wall|n.|牆
+want|v.|想要
+wanted|v.|想要
+was|v.|是（be 的過去式）
+wasnt|v.|不是（wasn't = was not）
+waste|n.|廢棄物；浪費
+watched|v.|觀看
+water|n.|水
+way|n.|方法；方式
+ways|n.|方法
+we|pron.|我們
+welcome|adj.|受歡迎的
+well|adv.|好（as well as：以及）
+wellness|n.|身心健康
+went|v.|去（go 的過去式）
+were|v.|是（be 的過去式複數）
+werent|v.|不是（weren't = were not）
+what|pron.|什麼
+when|conj./adv.|當…時
+whets|v.|刺激；磨利（whet one's appetite：引起食慾）
+which|pron.|哪一個；其
+while|conj.|當…的時候；然而
+who|pron.|誰
+wife|n.|妻子
+wild|adj.|野生的
+will|modal v.|將會
+wish|v.|希望
+with|prep.|和…一起；用
+woman|n.|女人
+wont|modal v.|不會（won't = will not）
+work|v./n.|工作
+worked|v.|工作
+working|v.|工作
+world|n.|世界
+worn|adj.|磨損的
+worst|adj.|最糟的
+would|modal v.|會；將
+wound|n.|傷口
+wrapping|n.|包裝
+write|v.|寫
+wrong|adj.|錯誤的（get the wrong idea：誤會）
+yet|adv./conj.|然而；尚
+yokohama|n.|橫濱
+york|n.|約克（New York：紐約）
+you|pron.|你
+youll|pron.+v.|你將會（you'll = you will）
+youre|pron.+v.|你是（you're = you are）
+your|pron.|你的
+yourself|pron.|你自己
+zoo|n.|動物園
+to|prep.|到；為了；（不定詞 to）`;
+    const passageDict = {};
+    PASSAGE_DICT_RAW.split('\n').forEach(line => {
+      const p = line.split('|');
+      if (p.length === 3) passageDict[p[0]] = { pos: p[1], zh: p[2] };
+    });
+
+    /* ==========================================================================
        2. QUIZ QUESTIONS & ANSWERS (Q1 - Q27)
        ========================================================================== */
     const quizData = [
@@ -751,8 +1350,8 @@
         // preserve blank spans (1), (2) etc.
         const html = p.innerHTML;
         // tokenization matching words while ignoring nested tags
-        const newHtml = html.replace(/([a-zA-Z’']+)(?![^<]*>)/g, (match) => {
-          const cleanWord = match.toLowerCase().replace(/[^a-z]/g, '');
+        const newHtml = html.replace(/([a-zA-Zé’']+)(?![^<]*>)/g, (match) => {
+          const cleanWord = cleanToken(match);
           if (cleanWord.length > 1) {
             return `<span class="word-tap" onclick="lookupWord('${cleanWord}', this, event)">${match}</span>`;
           }
@@ -763,6 +1362,41 @@
     }
 
     let activeWordSpan = null;
+
+    // "Company's" -> "company"; "couldn't" -> "couldnt"; "café" -> "café"
+    function cleanToken(t) {
+      return t.toLowerCase().replace(/’/g, "'").replace(/'s$/, '').replace(/[^a-zé]/g, '');
+    }
+
+    // 先查單字庫，再查文章字典，最後嘗試還原字尾（-s / -es / -ies / -ed / -ing ...）
+    function findEntry(word) {
+      if (dictionary[word]) return { entry: dictionary[word], base: null };
+      if (passageDict[word]) return { entry: passageDict[word], base: null };
+      const cands = [];
+      if (word.endsWith('ies')) cands.push(word.slice(0, -3) + 'y');
+      if (word.endsWith('es')) cands.push(word.slice(0, -2));
+      if (word.endsWith('s')) cands.push(word.slice(0, -1));
+      if (word.endsWith('ied')) cands.push(word.slice(0, -3) + 'y');
+      if (word.endsWith('ed')) cands.push(word.slice(0, -2), word.slice(0, -1));
+      if (word.endsWith('ing')) cands.push(word.slice(0, -3), word.slice(0, -3) + 'e');
+      if (word.endsWith('er')) cands.push(word.slice(0, -2), word.slice(0, -1));
+      if (word.endsWith('ly')) cands.push(word.slice(0, -2));
+      for (const c of cands) {
+        if (dictionary[c]) return { entry: dictionary[c], base: c };
+        if (passageDict[c]) return { entry: passageDict[c], base: c };
+      }
+      return null;
+    }
+
+    // 取得該字所在的整句（從段落文字中切句）
+    function getContextSentence(element) {
+      const para = element && element.closest ? element.closest('.passage-para') : null;
+      if (!para) return '';
+      const text = para.innerText.replace(/\s+/g, ' ').trim();
+      const sentences = text.split(/(?<=[.!?])\s+/);
+      const tapped = (element.innerText || '').trim();
+      return sentences.find(sn => tapped && sn.includes(tapped)) || '';
+    }
 
     function lookupWord(word, element, event) {
       if (event) event.stopPropagation();
@@ -781,22 +1415,36 @@
       const phoneticSpan = document.getElementById('modal-phonetic');
       const zhPara = document.getElementById('modal-zh');
       const examplePara = document.getElementById('modal-example');
+      const exampleLabel = document.getElementById('modal-example-label');
       const audioBtn = document.getElementById('modal-audio-btn');
 
       wordHeading.innerText = word;
-      
-      const entry = dictionary[word];
-      if (entry) {
+
+      const found = findEntry(word);
+      const sentence = getContextSentence(element);
+
+      if (found) {
+        const entry = found.entry;
         posSpan.innerText = entry.pos;
-        phoneticSpan.innerText = entry.ipa;
-        zhPara.innerText = entry.zh;
-        examplePara.innerText = entry.ex;
+        phoneticSpan.innerText = entry.ipa || '';
+        phoneticSpan.classList.toggle('hidden', !entry.ipa);
+        zhPara.innerText = found.base ? (entry.zh + '（原形：' + found.base + '）') : entry.zh;
       } else {
-        // Dynamic fallback lookup
-        posSpan.innerText = "v./n.";
-        phoneticSpan.innerText = `/${word}/`;
-        zhPara.innerText = `${word} (點擊下方聽英語發音)`;
-        examplePara.innerText = `Context lookup for "${word}" in Unit 5 reading materials.`;
+        posSpan.innerText = '';
+        phoneticSpan.classList.add('hidden');
+        zhPara.innerText = '字典尚未收錄這個字';
+      }
+
+      // 例句：優先顯示文章原句（有上下文），否則用字典內建例句
+      if (sentence) {
+        exampleLabel.innerText = '文章原句';
+        examplePara.innerText = sentence;
+      } else if (found && found.entry.ex) {
+        exampleLabel.innerText = '例句';
+        examplePara.innerText = found.entry.ex;
+      } else {
+        exampleLabel.innerText = '例句';
+        examplePara.innerText = '—';
       }
 
       audioBtn.onclick = () => speakWord(word);
