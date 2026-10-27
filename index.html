@@ -558,13 +558,6 @@
           <div class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">繁體中文解釋</div>
           <p id="modal-zh" class="text-lg font-bold text-blue-600 dark:text-blue-400">定義加載中...</p>
         </div>
-
-        <div>
-          <div id="modal-example-label" class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">文章原句</div>
-          <p id="modal-example" class="text-sm text-slate-600 dark:text-slate-300 italic bg-slate-50 dark:bg-slate-700/50 p-3 rounded-xl border border-slate-200 dark:border-slate-600">
-            Example sentence here.
-          </p>
-        </div>
       </div>
 
       <div class="pt-2 flex justify-end">
@@ -701,8 +694,7 @@
        1b. PASSAGE DICTIONARY - 文章中所有字詞的中文（不會出現在單字庫 / Flashcards）
        格式：word|詞性|中文
        ========================================================================== */
-    const PASSAGE_DICT_RAW = `about|prep./adv.|關於；大約
-accidentally|adv.|意外地；偶然地
+    const PASSAGE_DICT_RAW = `accidentally|adv.|意外地；偶然地
 achieve|v.|達成；實現
 activities|n.|活動
 actually|adv.|實際上；其實
@@ -715,12 +707,9 @@ airplanes|n.|飛機
 alien|adj./n.|外星的；外星人
 all|det./pron.|全部；所有
 alps|n.|阿爾卑斯山
-also|adv.|也；而且
 although|conj.|雖然
 always|adv.|總是
 american|adj.|美國的
-an|art.|一個
-and|conj.|和；而且
 another|det./pron.|另一個
 answer|n.|答案；解決辦法
 antique|adj./n.|古董的；古董
@@ -728,14 +717,11 @@ any|det.|任何
 appearance|n.|外表；外觀
 appetite|n.|胃口；食慾
 apply|v.|塗抹；貼上；應用
-are|v.|是（be 的複數現在式）
 areas|n.|地區；領域
 art|n.|藝術
 artifacts|n.|人工製品；文物
-as|conj./prep.|如同；作為；因為
 assembles|v.|收集；組裝
 assisting|v.|協助
-at|prep.|在（某處／某時）
 atmosphere|n.|大氣；氛圍
 australia|n.|澳洲
 back|adv./n.|回來；後面
@@ -748,10 +734,8 @@ bandage|n./v.|繃帶；包紮
 bandages|n.|繃帶
 barista|n.|咖啡師
 based|adj.|以…為基礎的
-be|v.|是；成為
 beauty|n.|美；美景
 became|v.|變成（become 的過去式）
-been|v.|是（be 的過去分詞）
 before|prep./conj.|在…之前
 began|v.|開始（begin 的過去式）
 benefit|n./v.|好處；有益於
@@ -767,13 +751,10 @@ brewing|v.|沖泡；釀造
 bring|v.|帶來
 burned|v.|燒傷；燃燒
 businesses|n.|企業；商店
-but|conj.|但是
 buy|v.|買
-by|prep.|被；藉由；在…旁
 café|n.|咖啡廳
 caf|n.|咖啡廳（café）
 came|v.|來（come 的過去式）
-can|modal v.|能夠；可以
 capability|n.|能力
 capturing|v.|捕捉
 carbon|n.|碳
@@ -815,8 +796,6 @@ converted|v.|轉換；兌換
 cooking|n./v.|烹飪
 correct|v./adj.|改正；正確的
 cost|n.|成本；費用
-could|modal v.|可能；能夠（can 的過去式）
-couldnt|modal v.|無法（couldn't = could not）
 cows|n.|母牛；乳牛
 cream|n.|奶油；冰淇淋
 creations|n.|作品；創作；特調飲品
@@ -847,8 +826,6 @@ discounts|n.|折扣
 discovered|v.|發現
 displays|v.|展示
 distributed|v.|分發
-do|v.|做
-does|v.|做
 dog|n.|狗
 draw|v.|畫
 dreadful|adj.|可怕的；糟透的
@@ -869,7 +846,6 @@ environmental|adj.|環境的
 especially|adv.|尤其
 essays|n.|文章；短文
 europe|n.|歐洲
-even|adv.|甚至
 events|n.|活動；事件
 eventually|adv.|最終
 every|det.|每個
@@ -894,7 +870,6 @@ first|adj./adv.|第一；首先
 floor|n.|樓層；地板
 following|adj.|以下的
 food|n.|食物
-for|prep.|為了；給
 foreign|adj.|外國的
 forget|v.|忘記
 four|num.|四
@@ -903,7 +878,6 @@ french|adj.|法國的
 fresh|adj.|新鮮的
 friendly|adj.|友善的
 friends|n.|朋友
-from|prep.|從
 full|adj.|充滿的
 fully|adv.|完全地
 fun|n./adj.|樂趣；有趣的
@@ -919,20 +893,12 @@ gram|n.|公克
 great|adj.|很棒的；偉大的
 guests|n.|客人
 habits|n.|習慣
-had|v.|有（have 的過去式）
 hand|n.|手；（lend a hand）幫忙
 handy|adj.|方便的；便利的
 hard|adj./adv.|困難的；努力地
-has|v.|有
-have|v.|有
-he|pron.|他
 health|n.|健康
 healthy|adj.|健康的
 help|v./n.|幫助
-her|pron.|她的；她
-here|adv.|這裡
-herself|pron.|她自己
-his|pron.|他的
 holiday|n.|假期
 home|n.|家
 hot|adj.|熱的
@@ -946,11 +912,9 @@ hurt|v.|傷害；弄痛
 ice|n.|冰
 idea|n.|想法
 ideas|n.|想法
-if|conj.|如果
 imaginable|adj.|可想像的
 immediately|adv.|立刻
 important|adj.|重要的
-in|prep.|在…裡
 increase|v./n.|增加
 industry|n.|產業
 information|n.|資訊
@@ -959,20 +923,15 @@ instead|adv.|反而；代替
 instruments|n.|器具；儀器
 intended|v.|打算；意圖
 international|adj.|國際的
-into|prep.|進入
 invented|v.|發明
 invention|n.|發明
 inventions|n.|發明
 inventors|n.|發明家
-is|v.|是
-it|pron.|它
 items|n.|物品；項目
-its|pron.|它的
 japan|n.|日本
 japanese|adj./n.|日本的；日本人
 job|n.|工作
 join|v.|加入；參加
-just|adv.|只是；剛好
 keen|adj.|熱衷的；渴望的
 keep|v.|保持；保留
 kelp|n.|海帶；大型褐藻
@@ -1009,16 +968,13 @@ make|v.|製造；使
 making|v.|製造
 many|det.|許多
 maps|n.|地圖
-may|modal v.|可能；可以
 mcdonald|n.|麥當勞
-me|pron.|我（受格）
 meanwhile|adv.|同時；與此同時
 meat|n.|肉
 member|n.|成員
 mention|v.|提到
 menu|n.|菜單
 michelangelo|n.|米開朗基羅
-might|modal v.|可能
 mind|n.|心；頭腦（come to mind：浮現腦海）
 minerals|n.|礦物質
 mistakes|n.|錯誤
@@ -1031,7 +987,6 @@ mountains|n.|山
 much|adj./adv.|很多；非常
 museum|n.|博物館
 museums|n.|博物館
-my|pron.|我的
 nantou|n.|南投
 need|v./n.|需要
 needed|v.|需要
@@ -1040,26 +995,19 @@ never|adv.|從不
 new|adj.|新的
 next|adj.|下一個
 noodles|n.|麵條
-not|adv.|不
 notable|adj.|著名的；值得注意的
 noticed|v.|注意到
 now|adv.|現在
 number|n.|數量；號碼
 nutrients|n.|營養素
 object|n.|物體
-of|prep.|…的
 often|adv.|經常
-on|prep.|在…上
 one|num./pron.|一；一個
-or|conj.|或者
 order|n.|順序（in order to：為了）
 organisms|n.|生物；有機體
 organizations|n.|組織；機構
 other|adj.|其他的
-our|pron.|我們的
-out|adv.|向外；出去
 output|n.|產量；排放量
-over|prep./adv.|在…上方；超過；至於
 overcame|v.|克服（overcome 的過去式）
 own|adj.|自己的
 paint|n./v.|油漆；塗漆
@@ -1137,7 +1085,6 @@ sets|n.|組；套
 shaker|n.|搖瓶；調味罐
 shapes|n.|形狀
 sharing|v.|分享
-she|pron.|她
 shoe|n.|鞋子
 shoes|n.|鞋子
 shop|n.|商店
@@ -1150,7 +1097,6 @@ skeletons|n.|骷髏；骨架
 skiing|n.|滑雪
 skills|n.|技能
 small|adj.|小的
-so|adv./conj.|所以；非常
 socks|n.|襪子
 solutions|n.|解決辦法
 solve|v.|解決
@@ -1189,22 +1135,11 @@ take|v.|拿；採取
 tea|n.|茶
 tells|v.|告訴；講述
 terms|n.|術語；條件
-than|conj./prep.|比
-that|pron./conj.|那個；那
-the|art.|這個；那個（定冠詞）
-their|pron.|他們的
-them|pron.|他們（受格）
-then|adv.|然後
-there|adv.|那裡；有
 therefore|adv.|因此
-these|det.|這些
-they|pron.|他們
 things|n.|東西；事物
 think|v.|想；認為
 thirsty|adj.|口渴的
-this|det./pron.|這個
 thomas|n.|湯瑪斯（人名）
-those|det.|那些
 tickets|n.|票
 time|n.|時間；次
 toilets|n.|廁所；馬桶
@@ -1227,7 +1162,6 @@ unforgettable|adj.|難忘的
 united|adj.|聯合的
 universal|adj.|普遍的；通用的
 unopened|adj.|未打開的
-up|adv.|向上
 used|v.|使用；被用來
 useful|adj.|有用的
 uses|n.|用途
@@ -1236,60 +1170,38 @@ vacations|n.|假期
 vaccines|n.|疫苗
 varied|adj.|各式各樣的
 vegetable|n.|蔬菜
-very|adv.|非常
 visit|v.|參觀；拜訪
 visitors|n.|參觀者
 wall|n.|牆
 want|v.|想要
 wanted|v.|想要
-was|v.|是（be 的過去式）
-wasnt|v.|不是（wasn't = was not）
 waste|n.|廢棄物；浪費
 watched|v.|觀看
 water|n.|水
 way|n.|方法；方式
 ways|n.|方法
-we|pron.|我們
 welcome|adj.|受歡迎的
 well|adv.|好（as well as：以及）
 wellness|n.|身心健康
 went|v.|去（go 的過去式）
-were|v.|是（be 的過去式複數）
-werent|v.|不是（weren't = were not）
-what|pron.|什麼
-when|conj./adv.|當…時
 whets|v.|刺激；磨利（whet one's appetite：引起食慾）
-which|pron.|哪一個；其
-while|conj.|當…的時候；然而
-who|pron.|誰
 wife|n.|妻子
 wild|adj.|野生的
-will|modal v.|將會
 wish|v.|希望
-with|prep.|和…一起；用
 woman|n.|女人
-wont|modal v.|不會（won't = will not）
 work|v./n.|工作
 worked|v.|工作
 working|v.|工作
 world|n.|世界
 worn|adj.|磨損的
 worst|adj.|最糟的
-would|modal v.|會；將
 wound|n.|傷口
 wrapping|n.|包裝
 write|v.|寫
 wrong|adj.|錯誤的（get the wrong idea：誤會）
-yet|adv./conj.|然而；尚
 yokohama|n.|橫濱
 york|n.|約克（New York：紐約）
-you|pron.|你
-youll|pron.+v.|你將會（you'll = you will）
-youre|pron.+v.|你是（you're = you are）
-your|pron.|你的
-yourself|pron.|你自己
-zoo|n.|動物園
-to|prep.|到；為了；（不定詞 to）`;
+zoo|n.|動物園`;
     const passageDict = {};
     PASSAGE_DICT_RAW.split('\n').forEach(line => {
       const p = line.split('|');
@@ -1352,7 +1264,7 @@ to|prep.|到；為了；（不定詞 to）`;
         // tokenization matching words while ignoring nested tags
         const newHtml = html.replace(/([a-zA-Zé’']+)(?![^<]*>)/g, (match) => {
           const cleanWord = cleanToken(match);
-          if (cleanWord.length > 1) {
+          if (cleanWord.length > 1 && !FUNCTION_WORDS.has(cleanWord)) {
             return `<span class="word-tap" onclick="lookupWord('${cleanWord}', this, event)">${match}</span>`;
           }
           return match;
@@ -1362,6 +1274,9 @@ to|prep.|到；為了；（不定詞 to）`;
     }
 
     let activeWordSpan = null;
+
+    // 功能字（冠詞、be 動詞、代名詞、介系詞等）不提供點擊查詢
+    const FUNCTION_WORDS = new Set(["a", "about", "also", "am", "an", "and", "are", "as", "at", "be", "been", "being", "but", "by", "can", "could", "couldnt", "did", "do", "does", "doing", "done", "even", "for", "from", "had", "has", "have", "having", "he", "her", "here", "herself", "him", "himself", "his", "i", "if", "in", "into", "is", "it", "its", "itself", "just", "may", "me", "might", "mine", "must", "my", "nor", "not", "of", "off", "on", "or", "our", "out", "over", "shall", "she", "should", "so", "than", "that", "the", "their", "them", "themselves", "then", "there", "these", "they", "this", "those", "to", "up", "us", "very", "was", "wasnt", "we", "were", "werent", "what", "when", "where", "which", "while", "who", "whom", "whose", "will", "with", "wont", "would", "yet", "you", "youll", "your", "youre", "yourself"]);
 
     // "Company's" -> "company"; "couldn't" -> "couldnt"; "café" -> "café"
     function cleanToken(t) {
@@ -1388,16 +1303,6 @@ to|prep.|到；為了；（不定詞 to）`;
       return null;
     }
 
-    // 取得該字所在的整句（從段落文字中切句）
-    function getContextSentence(element) {
-      const para = element && element.closest ? element.closest('.passage-para') : null;
-      if (!para) return '';
-      const text = para.innerText.replace(/\s+/g, ' ').trim();
-      const sentences = text.split(/(?<=[.!?])\s+/);
-      const tapped = (element.innerText || '').trim();
-      return sentences.find(sn => tapped && sn.includes(tapped)) || '';
-    }
-
     function lookupWord(word, element, event) {
       if (event) event.stopPropagation();
 
@@ -1414,14 +1319,11 @@ to|prep.|到；為了；（不定詞 to）`;
       const posSpan = document.getElementById('modal-pos');
       const phoneticSpan = document.getElementById('modal-phonetic');
       const zhPara = document.getElementById('modal-zh');
-      const examplePara = document.getElementById('modal-example');
-      const exampleLabel = document.getElementById('modal-example-label');
       const audioBtn = document.getElementById('modal-audio-btn');
 
       wordHeading.innerText = word;
 
       const found = findEntry(word);
-      const sentence = getContextSentence(element);
 
       if (found) {
         const entry = found.entry;
@@ -1435,23 +1337,9 @@ to|prep.|到；為了；（不定詞 to）`;
         zhPara.innerText = '字典尚未收錄這個字';
       }
 
-      // 例句：優先顯示文章原句（有上下文），否則用字典內建例句
-      if (sentence) {
-        exampleLabel.innerText = '文章原句';
-        examplePara.innerText = sentence;
-      } else if (found && found.entry.ex) {
-        exampleLabel.innerText = '例句';
-        examplePara.innerText = found.entry.ex;
-      } else {
-        exampleLabel.innerText = '例句';
-        examplePara.innerText = '—';
-      }
-
       audioBtn.onclick = () => speakWord(word);
       modal.classList.remove('hidden');
 
-      // auto speech on lookup
-      speakWord(word);
     }
 
     function closeDictModal() {
